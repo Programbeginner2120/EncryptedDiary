@@ -12,6 +12,9 @@ public class App {
 
     public static void main(String [] args){
 
+        DiaryEditorPage page = new DiaryEditorPage();
+
+
 //        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 //
 //        System.out.println(System.getProperty("user.dir"));
