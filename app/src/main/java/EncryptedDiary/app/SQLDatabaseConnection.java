@@ -2,24 +2,19 @@ package EncryptedDiary.app;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.*;
-import java.sql.SQLException;
 
 public class SQLDatabaseConnection {
 
-    public static void main (String [] args) {
+    private final String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=residentialLivingComplex;" +
+            "user=sa;password=sql_server_2019_password";
 
-        String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=residentialLivingComplex;user=alternateUser;password=sql_server_2019_password";
-
+    public Connection connectToDatabase() {
         try (Connection connection = DriverManager.getConnection(connectionUrl)) {
-            // Code here.
+            return connection;
         }
-        // Handle any errors that may have occurred.
         catch (Exception e) {
-            e.printStackTrace();
+            return null;
         }
-
     }
-
 
 }

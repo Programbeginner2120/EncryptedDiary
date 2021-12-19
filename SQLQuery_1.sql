@@ -1,0 +1,37 @@
+/* Creating Encrypted Diary Database */
+
+CREATE DATABASE ENCRYPTED_DIARY_DB;
+GO
+
+/* Changing to the ENCRYPTED_DIARY_DB database */
+
+USE ENCRYPTED_DIARY_DB;
+GO
+
+
+/* CREATING TABLE OF USERS */
+
+CREATE TABLE Users (
+    userID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    firstName NVARCHAR(50) NOT NULL,
+    lastName NVARCHAR(50) NOT NULL,
+    dateCreated DATE
+);
+
+/* CREATING TABLE OF USERDATA */
+CREATE TABLE UserData (
+    userDataId INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    securityQuestion NVARCHAR(255) NULL,
+    securityAnswer NVARCHAR(255) NULL,
+    numDocuments INT NOT NULL,
+    userID INT FOREIGN KEY REFERENCES Users(userID)
+);
+
+/* CREATING TABLE OF USERDOCUMENTS */
+CREATE TABLE UserDocuments (
+    documentID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    encryptionMethod NVARCHAR(30) NOT NULL,
+    decryptionMethod NVARCHAR(30) NOT NULL,
+    userID INT FOREIGN KEY REFERENCES Users(userID)
+);
+

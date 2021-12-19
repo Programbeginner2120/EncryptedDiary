@@ -16,3 +16,5 @@ build
 
 /app/*
 !app/src
+
+/.DS_Store
