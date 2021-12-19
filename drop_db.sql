@@ -1,4 +1,0 @@
-USE master;  
-GO  
-DROP DATABASE ENCRYPTED_DIARY_DB;  
-GO  

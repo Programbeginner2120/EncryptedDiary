@@ -13,8 +13,8 @@ GO
 
 CREATE TABLE Users (
     userID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    firstName NVARCHAR(50) NOT NULL,
-    lastName NVARCHAR(50) NOT NULL,
+    username NVARCHAR(50) NOT NULL,
+    passHash NVARCHAR(255) NOT NULL,
     dateCreated DATE
 );
 

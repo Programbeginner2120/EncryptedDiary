@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
 
@@ -16,6 +19,8 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private JButton loginButton;
     private JButton resetButton;
     private JCheckBox showPassword;
+
+    private SQLDatabaseConnection sqlConnection = null;
 
     public DiaryLoginPage() {
          this.container = getContentPane();
@@ -32,17 +37,23 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         setLocationAndSize();
         addComponentsToContainer();
         addActionEvent();
+
+        this.constructLoginPage();
     }
 
-    public void constructLoginPage(){
+    private void constructLoginPage(){
         this.setTitle("User Login");
         this.setVisible(true); // able to actually see the login page frame
         this.setBounds(10,10,370,600); // setting x and y coordinates as well as width and height
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false); // determines whether user can reshape frame
     }
 
-    public void setLayoutManager() {
+    private void deconstructLoginPage(){
+        this.setVisible(false);
+    }
+
+    private void setLayoutManager() {
         //Setting layout manager of container to null
         container.setLayout(null);
     }
@@ -76,22 +87,49 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         showPassword.addActionListener(this);
     }
 
-    private boolean onLoginButtonPress(String username, String password) {
-
-        // TODO: implement some tracker for connection (property, global variable, etc.)
-        SQLDatabaseConnection sqlConnection;
+    private static boolean validateUsername(Connection conn, String username){
+        PreparedStatement ps;
         try{
-            sqlConnection = new SQLDatabaseConnection();
+            ps = conn.prepareStatement("SELECT * FROM Users WHERE username = ?");
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+            return rs.first();
         }
         catch (Exception ex){
-            JOptionPane.showMessageDialog(this, "Something went wrong when trying to connect" +
-                    "to the network. Please try again later.");
+            return false;
+        }
+    }
+
+    private static boolean validatePassword(Connection conn, String password){
+        PreparedStatement ps;
+        try{
+            ps = conn.prepareStatement("SELECT * FROM Users WHERE passHash = ?");
+            ps.setString(1, Integer.toString(password.hashCode()));
+            ResultSet rs = ps.executeQuery();
+            return rs.first();
+        }
+        catch(Exception ex){
+            return false;
+        }
+    }
+
+    private boolean onLoginButtonPress(String username, String password) {
+        if (this.sqlConnection == null){
+            sqlConnection = new SQLDatabaseConnection();
+            if (sqlConnection == null) {
+                JOptionPane.showMessageDialog(this, "Something went wrong when trying " +
+                        "to connect to the network. Please try again later.");
+                return false;
+            }
         }
 
-        return true; // placeholder for now
+        Connection conn = this.sqlConnection.getConn();
 
-        //TODO: Implement user verification by querying the database, avoid SQL injection at all costs!!!
+        boolean validUsername = validateUsername(conn, username);
+        boolean validPassHash = validatePassword(conn, password);
 
+
+        return validUsername && validPassHash; // placeholder for now
     }
 
     private void onResetButtonPress() {

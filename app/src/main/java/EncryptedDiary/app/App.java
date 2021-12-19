@@ -15,7 +15,6 @@ public class App {
     public static void main(String[] args){
 
         DiaryLoginPage loginPage = new DiaryLoginPage();
-        loginPage.constructLoginPage();
 
     }
 
