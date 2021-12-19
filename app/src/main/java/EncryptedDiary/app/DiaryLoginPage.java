@@ -165,3 +165,6 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             onShowPasswordButtonPress();
     }
 }
+
+//TODO: IMPLEMENT JUNIT TESTING BEFORE PROCEEDING WITH MORE CODE SO THAT I KNOW THE FOUNDATIONAL FUNCTIONALITIES
+// WORK BEFORE MOVING ON
