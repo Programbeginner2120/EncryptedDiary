@@ -7,8 +7,13 @@ public class SQLDatabaseConnection {
 
     private final String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=residentialLivingComplex;" +
             "user=sa;password=sql_server_2019_password";
+    private Connection conn;
 
-    public Connection connectToDatabase() {
+    public SQLDatabaseConnection(){
+        this.conn = connectToDatabase();
+    }
+
+    private Connection connectToDatabase() {
         try (Connection connection = DriverManager.getConnection(connectionUrl)) {
             return connection;
         }
@@ -17,4 +22,7 @@ public class SQLDatabaseConnection {
         }
     }
 
+    public Connection getConn() {
+        return conn;
+    }
 }

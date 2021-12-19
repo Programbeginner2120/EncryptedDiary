@@ -34,6 +34,14 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         addActionEvent();
     }
 
+    public void constructLoginPage(){
+        this.setTitle("User Login");
+        this.setVisible(true); // able to actually see the login page frame
+        this.setBounds(10,10,370,600); // setting x and y coordinates as well as width and height
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setResizable(false); // determines whether user can reshape frame
+    }
+
     public void setLayoutManager() {
         //Setting layout manager of container to null
         container.setLayout(null);
@@ -68,10 +76,26 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         showPassword.addActionListener(this);
     }
 
-    private static boolean onLoginButtonPress(String username, String password) {
-        if (username.equalsIgnoreCase("matthew") && password.equalsIgnoreCase("killeen"))
-            return true;
-        return false;
+    private boolean onLoginButtonPress(String username, String password) {
+
+        // TODO: implement some tracker for connection (property, global variable, etc.)
+        SQLDatabaseConnection sqlConnection;
+        try{
+            sqlConnection = new SQLDatabaseConnection();
+        }
+        catch (Exception ex){
+            JOptionPane.showMessageDialog(this, "Something went wrong when trying to connect" +
+                    "to the network. Please try again later.");
+        }
+
+        return true;
+
+        //TODO: Implement user verification by querying the database, avoid SQL injection at all costs!!!
+
+
+//        if (username.equalsIgnoreCase("matthew") && password.equalsIgnoreCase("killeen"))
+//            return true;
+//        return false;
     }
 
     private void onResetButtonPress() {
@@ -93,7 +117,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             String userText = userTextField.getText();
             String passwordText = passwordField.getText();
 
-            boolean validLogin = onLoginButtonPress(userText, passwordText);
+            boolean validLogin = this.onLoginButtonPress(userText, passwordText);
             if (validLogin)
                 JOptionPane.showMessageDialog(this, "Login Successful");
             else
@@ -105,14 +129,5 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 
         else
             onShowPasswordButtonPress();
-    }
-
-    public static void main(String [] args){
-        DiaryLoginPage myPage = new DiaryLoginPage(); // creating new login page object
-        myPage.setTitle("User Login");
-        myPage.setVisible(true); // able to actually see the login page frame
-        myPage.setBounds(10,10,370,600); // setting x and y coordinates as well as width and height
-        myPage.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        myPage.setResizable(true); // determines whether user can reshape frame
     }
 }
