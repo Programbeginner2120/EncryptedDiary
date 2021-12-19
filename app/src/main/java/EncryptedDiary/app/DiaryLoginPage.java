@@ -88,14 +88,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
                     "to the network. Please try again later.");
         }
 
-        return true;
+        return true; // placeholder for now
 
         //TODO: Implement user verification by querying the database, avoid SQL injection at all costs!!!
 
-
-//        if (username.equalsIgnoreCase("matthew") && password.equalsIgnoreCase("killeen"))
-//            return true;
-//        return false;
     }
 
     private void onResetButtonPress() {
