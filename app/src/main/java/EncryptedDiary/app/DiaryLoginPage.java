@@ -5,9 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
 
@@ -20,7 +18,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private JButton resetButton;
     private JCheckBox showPassword;
 
-    private SQLDatabaseConnection sqlConnection = null;
+    private SQLDatabaseConnection sqlConnection = new SQLDatabaseConnection();
 
     public DiaryLoginPage() {
          this.container = getContentPane();
@@ -95,6 +93,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             ResultSet rs = ps.executeQuery();
             return rs.first();
         }
+        catch (SQLException ex){
+            JOptionPane.showMessageDialog(null, "Something went wrong when trying " +
+                    "to connect to the network. Please try again later.");
+            return false;
+        }
         catch (Exception ex){
             return false;
         }
@@ -108,28 +111,27 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             ResultSet rs = ps.executeQuery();
             return rs.first();
         }
+        catch (SQLException ex){
+            JOptionPane.showMessageDialog(null, "Something went wrong when trying " +
+                    "to connect to the network. Please try again later.");
+            return false;
+        }
         catch(Exception ex){
             return false;
         }
     }
 
     private boolean onLoginButtonPress(String username, String password) {
-        if (this.sqlConnection == null){
-            sqlConnection = new SQLDatabaseConnection();
-            if (sqlConnection == null) {
-                JOptionPane.showMessageDialog(this, "Something went wrong when trying " +
-                        "to connect to the network. Please try again later.");
-                return false;
-            }
-        }
-
         Connection conn = this.sqlConnection.getConn();
 
         boolean validUsername = validateUsername(conn, username);
-        boolean validPassHash = validatePassword(conn, password);
+        if (validUsername){
+            boolean validPassHash = validatePassword(conn, password);
+            if (validPassHash)
+                return true;
+        }
 
-
-        return validUsername && validPassHash; // placeholder for now
+        return false;
     }
 
     private void onResetButtonPress() {
@@ -168,3 +170,6 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 
 //TODO: IMPLEMENT JUNIT TESTING BEFORE PROCEEDING WITH MORE CODE SO THAT I KNOW THE FOUNDATIONAL FUNCTIONALITIES
 // WORK BEFORE MOVING ON
+
+//TODO: FIGURE OUT HOW TO HANDLE EXCEPTION FLOW WHEN USING LOGIN AND DATABASE CONNECTION FAILS, TRY TO PENCIL IT OUT
+// AND COME WITH A REUSABLE, RECYCLABLE AND SUSTAINABLE STRUCTURE
