@@ -18,8 +18,6 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private JButton resetButton;
     private JCheckBox showPassword;
 
-    private SQLDatabaseConnection sqlConnection = new SQLDatabaseConnection();
-
     public DiaryLoginPage() {
          this.container = getContentPane();
          this.userLabel = new JLabel("USERNAME");
@@ -48,7 +46,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     }
 
     private void deconstructLoginPage(){
-        this.setVisible(false);
+        this.dispose();
     }
 
     private void setLayoutManager() {
@@ -93,7 +91,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             ps = conn.prepareStatement("SELECT * FROM Users WHERE username = ?");
             ps.setString(1, username);
             ResultSet rs = ps.executeQuery();
-            return rs.first();
+            return rs.next();
         }
         catch (SQLException ex){
             JOptionPane.showMessageDialog(null, "Something went wrong when trying " +
@@ -108,7 +106,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             ps = conn.prepareStatement("SELECT * FROM Users WHERE passHash = ?");
             ps.setString(1, Integer.toString(password.hashCode()));
             ResultSet rs = ps.executeQuery();
-            return rs.first();
+            return rs.next();
         }
         catch (Exception ex){
             JOptionPane.showMessageDialog(null, "Something went wrong when trying " +
@@ -118,16 +116,18 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     }
 
     private String onLoginButtonPress(String username, String password) {
-        Connection conn = this.sqlConnection.getConn();
+        Connection conn = SQLDatabaseConnection.openConnection();
         try{
             boolean validUsername = validateUsername(conn, username);
             boolean validPassHash = validatePassword(conn, password);
+            SQLDatabaseConnection.closeConnection(conn);
             if (validUsername && validPassHash)
                 return "SUCCESS";
             return "FAILURE";
         }
 
         catch (Exception ex){
+            SQLDatabaseConnection.closeConnection(conn);
             return "ERROR";
         }
     }
@@ -171,5 +171,4 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 //TODO: IMPLEMENT JUNIT TESTING BEFORE PROCEEDING WITH MORE CODE SO THAT I KNOW THE FOUNDATIONAL FUNCTIONALITIES
 // WORK BEFORE MOVING ON
 
-//TODO: FIGURE OUT HOW TO HANDLE EXCEPTION FLOW WHEN USING LOGIN AND DATABASE CONNECTION FAILS, TRY TO PENCIL IT OUT
-// AND DERIVE A REUSABLE, RECYCLABLE AND SUSTAINABLE STRUCTURE
+//TODO: FIGURE OUT WHY YOU CAN'T REPEATEDLY OPEN AND CLOSE NEW CONNECTIONS TO THE DATABASE WHEN ATTEMPTING TO LOGIN
