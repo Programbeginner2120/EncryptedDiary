@@ -6,7 +6,7 @@ import java.sql.DriverManager;
 public class SQLDatabaseConnection {
 
     private final String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=ENCRYPTED_DIARY_DB;" +
-            "user=sa;password=sql_server_2019_password";
+            "user=sa;password=Mk16914004006425529";
     private Connection conn;
 
     public SQLDatabaseConnection(){
