@@ -173,4 +173,3 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 
 //TODO: FIGURE OUT WHY YOU CAN'T REPEATEDLY OPEN AND CLOSE NEW CONNECTIONS TO THE DATABASE WHEN ATTEMPTING TO LOGIN
 
-//test
