@@ -18,6 +18,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private JButton resetButton;
     private JCheckBox showPassword;
 
+    /**
+     * Constructor for the DiaryLoginPage class, sets up layout and functionality of page via calling private
+     * methods
+     */
     public DiaryLoginPage() {
          this.container = getContentPane();
          this.userLabel = new JLabel("USERNAME");
@@ -37,6 +41,9 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         constructLoginPage();
     }
 
+    /**
+     * Private method used to construct the DiaryLoginPage login page
+     */
     private void constructLoginPage(){
         this.setTitle("User Login");
         this.setVisible(true); // able to actually see the login page frame
@@ -45,16 +52,25 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         this.setResizable(false); // determines whether user can reshape frame
     }
 
+    /**
+     * Private method used to deconstruct the DiaryLoginPage login page, freeing up memory of the application
+     */
     private void deconstructLoginPage(){
         this.dispose();
     }
 
+    /**
+     * Private wrapper method for setting the layout manager of the container of the DiaryLoginPage
+     */
     private void setLayoutManager() {
         //Setting layout manager of container to null
         container.setLayout(null);
     }
 
-    public void setLocationAndSize() {
+    /**
+     * Private method to set the sizes of the buttons and labels present in the DiaryLoginPage
+     */
+    private void setLocationAndSize() {
         // Setting location and size of each components using setBounds() method
         userLabel.setBounds(50,150,100,30);
         passwordLabel.setBounds(50,220,100,30);
@@ -65,7 +81,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         resetButton.setBounds(200,300,100,30);
     }
 
-    public void addComponentsToContainer() {
+    /**
+     * Private method for adding the different components to the component of the DiaryLoginPage
+     */
+    private void addComponentsToContainer() {
         // Adding each component to the container
         this.container.add(userLabel);
         this.container.add(passwordLabel);
@@ -76,7 +95,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         this.container.add(resetButton);
     }
 
-    public void addActionEvent() {
+    /**
+     * Private method for adding action listeners to different buttons of the DiaryLoginPage, enabling
+     * the application to listen and respond to user input
+     */
+    private void addActionEvent() {
         // Adding action listener to components
         loginButton.addActionListener(this);
         resetButton.addActionListener(this);
@@ -85,6 +108,13 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 
     //*** END OF FRONT END DESIGN ***
 
+    /**
+     * Private static method to validate the username passed into the DiaryLoginPage. If username is valid, method
+     * returns true, else returns false. If an exception occurs, a RuntimeException is thrown.
+     * @param conn - A Connection object enabling interaction with the SQL Server database
+     * @param username - String representing the inputted username by the user
+     * @return - Returns true for valid username, false for invalid username
+     */
     private static boolean validateUsername(Connection conn, String username){
         PreparedStatement ps;
         try{
@@ -100,6 +130,13 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         }
     }
 
+    /**
+     * Private static method to validate the password passed into the DiaryLoginPage. If password is valid, method
+     * returns true, else returns false. If an exception occurs, a RuntimeException is thrown.
+     * @param conn - A Connection object enabling interaction with the SQL Server database
+     * @param password - String representing the inputted password by the user
+     * @return Returns true for valid password, false for invalid password
+     */
     private static boolean validatePassword(Connection conn, String password){
         PreparedStatement ps;
         try{
@@ -115,6 +152,12 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         }
     }
 
+    /**
+     *
+     * @param username
+     * @param password
+     * @return
+     */
     private String onLoginButtonPress(String username, String password) {
         Connection conn = SQLDatabaseConnection.openConnection();
         try{

@@ -8,6 +8,10 @@ public class SQLDatabaseConnection {
             "user=sa;password=Mk16914004006425529";
     private Connection conn = null;
 
+    /**
+     * Opens a connection to the SQL Server Database specified by the String connectionUrl
+     * @return Connection conn, a Connection to the database
+     */
     public static Connection openConnection(){
         Connection conn = null;
         try{
@@ -20,6 +24,10 @@ public class SQLDatabaseConnection {
         return conn;
     }
 
+    /**
+     * Closes a connection to the SQL Server database
+     * @param conn - A Connection to the database
+     */
     public static void closeConnection(Connection conn){
         try{
             conn.close();
