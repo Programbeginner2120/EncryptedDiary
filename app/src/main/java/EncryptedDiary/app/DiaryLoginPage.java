@@ -34,7 +34,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         addComponentsToContainer();
         addActionEvent();
 
-        this.constructLoginPage();
+        constructLoginPage();
     }
 
     private void constructLoginPage(){
@@ -120,14 +120,14 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         try{
             boolean validUsername = validateUsername(conn, username);
             boolean validPassHash = validatePassword(conn, password);
-            SQLDatabaseConnection.closeConnection(conn);
-            if (validUsername && validPassHash)
+            if (validUsername && validPassHash) {
+                SQLDatabaseConnection.closeConnection(conn);
                 return "SUCCESS";
+            }
             return "FAILURE";
         }
 
         catch (Exception ex){
-            SQLDatabaseConnection.closeConnection(conn);
             return "ERROR";
         }
     }
@@ -141,7 +141,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         if (showPassword.isSelected())
             passwordField.setEchoChar((char) 0);
         else
-            passwordField.setEchoChar('*');
+            passwordField.setEchoChar('•');
     }
 
     @Override
@@ -152,8 +152,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             String passwordText = String.valueOf(passwordField.getPassword());
 
             String loginStringResult = this.onLoginButtonPress(userText, passwordText);
-            if (loginStringResult.equals("SUCCESS"))
+            if (loginStringResult.equals("SUCCESS")) {
                 JOptionPane.showMessageDialog(this, "Login Successful");
+                this.deconstructLoginPage();
+                DiaryEditorPage editorPage = new DiaryEditorPage();
+            }
             else if (loginStringResult.equals("FAILURE"))
                 JOptionPane.showMessageDialog(this, "Invalid Username or Password");
 //            else if (loginStringResult.equals("ERROR"))

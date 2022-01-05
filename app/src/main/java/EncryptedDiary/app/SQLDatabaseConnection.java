@@ -6,13 +6,16 @@ public class SQLDatabaseConnection {
 
     private static final String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=ENCRYPTED_DIARY_DB;" +
             "user=sa;password=Mk16914004006425529";
-    private static Connection conn = null;
+    private Connection conn = null;
 
     public static Connection openConnection(){
-        if (conn == null){
-            try{ conn = DriverManager.getConnection(connectionUrl); }
+        Connection conn = null;
+        try{
+            conn = DriverManager.getConnection(connectionUrl);
+        }
 
-            catch(SQLException ex){}
+        catch(SQLException ex){
+            System.out.println(ex.getMessage());
         }
         return conn;
     }
@@ -22,7 +25,9 @@ public class SQLDatabaseConnection {
             conn.close();
         }
 
-        catch(SQLException ex){}
+        catch(SQLException ex){
+            System.out.println(ex.getMessage());
+        }
 
         conn = null;
     }
