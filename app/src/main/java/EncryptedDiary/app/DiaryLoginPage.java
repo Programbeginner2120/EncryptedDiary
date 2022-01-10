@@ -198,7 +198,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             if (loginStringResult.equals("SUCCESS")) {
                 JOptionPane.showMessageDialog(this, "Login Successful");
                 this.deconstructLoginPage();
-                DiaryEditorPage editorPage = new DiaryEditorPage();
+                moveToDiaryEditorPage();
             }
             else if (loginStringResult.equals("FAILURE"))
                 JOptionPane.showMessageDialog(this, "Invalid Username or Password");
@@ -211,6 +211,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 
         else
             onShowPasswordButtonPress();
+    }
+
+    public static void moveToDiaryEditorPage(){
+        DiaryEditorPage editorPage = new DiaryEditorPage();
     }
 }
 

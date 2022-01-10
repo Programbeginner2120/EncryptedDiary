@@ -68,6 +68,9 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         f.setJMenuBar(mb);
         f.add(t);
         f.setSize(500, 500);
+
+        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
         f.show();
     }
 
