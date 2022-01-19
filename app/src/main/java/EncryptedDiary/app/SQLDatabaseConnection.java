@@ -44,17 +44,17 @@ public class SQLDatabaseConnection {
 
 }
 
-class main{
-
-    public static void main(String [] args){
-        Connection conn = SQLDatabaseConnection.openConnection();
-
-        try{
-            System.out.println(conn.isClosed());
-        }
-        catch (Exception ex){
-            ;
-        }
-
-    }
-}
+//class main{
+//
+//    public static void main(String [] args){
+//        Connection conn = SQLDatabaseConnection.openConnection();
+//
+//        try{
+//            System.out.println(conn.isClosed());
+//        }
+//        catch (Exception ex){
+//            ;
+//        }
+//
+//    }
+//}

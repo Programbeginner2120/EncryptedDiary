@@ -1,5 +1,4 @@
 USE ENCRYPTED_DIARY_DB;
-GO
 
 INSERT INTO Users (
     username,

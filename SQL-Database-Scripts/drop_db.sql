@@ -1,13 +1,4 @@
-USE master;
+/* SQL query to kill all active connections to encrypted diary database and drop it */
 
-DECLARE @kill varchar(8000) = '';
-SELECT @kill = @kill + 'kill ' + CONVERT(varchar(5), session_id) + ';'
-FROM sys.dm_exec_sessions
-WHERE database_id  = db_id('ENCRYPTED_DIARY_DB')
-
-EXEC(@kill);
-
-USE master;
-GO
-DROP DATABASE ENCRYPTED_DIARY_DB;  
-GO  
+Select concat('KILL ',id,';') from information_schema.processlist where user='user'; /* I don't think this is necessary, but I'm keeping it regardless */
+DROP DATABASE ENCRYPTED_DIARY_DB;
