@@ -1,6 +1,7 @@
 /* Creating Encrypted Diary Database */
 
-CREATE DATABASE ENCRYPTED_DIARY_DB;
+CREATE DATABASE ENCRYPTED_DIARY_DB
+  WITH FILESTREAM ( NON_TRANSACTED_ACCESS = FULL, DIRECTORY_NAME = N'master' );
 GO
 
 /* Changing to the ENCRYPTED_DIARY_DB database */
@@ -28,8 +29,10 @@ CREATE TABLE UserData (
 );
 
 /* CREATING TABLE OF USERDOCUMENTS */
-CREATE TABLE UserDocuments (
-    documentID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+CREATE TABLE UserDocuments as FILETABLE(
+    userDocumentsID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    userDocumentName VARCHAR (25) NOT NULL,
+    userDocumentContents VARBINARY (MAX) FILESTREAM NULL,
     encryptionMethod NVARCHAR(30) NOT NULL,
     decryptionMethod NVARCHAR(30) NOT NULL,
     userID INT FOREIGN KEY REFERENCES Users(userID)
