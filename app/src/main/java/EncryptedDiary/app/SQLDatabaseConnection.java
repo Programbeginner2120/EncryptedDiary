@@ -4,8 +4,6 @@ import java.sql.*;
 
 public class SQLDatabaseConnection {
 
-//    private static final String connectionUrl = "jdbc:sqlserver://localhost:1433;databaseName=ENCRYPTED_DIARY_DB;" +
-//            "user=sa;password=Mk16914004006425529";
     private static final String connectionUrl = "jdbc:mysql://(localhost=33060,user=Matthewkilleen99," +
         "password=Mk16914004006425529)/ENCRYPTED_DIARY_DB";
     private Connection conn = null;
