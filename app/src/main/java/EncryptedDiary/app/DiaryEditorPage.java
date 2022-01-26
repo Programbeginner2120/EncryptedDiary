@@ -11,6 +11,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
     JTextArea t; // Text component
     JFrame f; // Frame
+    String currentFileName = null;
 
     DiaryEditorPage() {
         f = new JFrame("Diary Editor"); // creating a new JFrame
@@ -121,36 +122,53 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     }
 
 
-    public void onSave(){
-        JFileChooser j = new JFileChooser("f:"); // Create an object of JFileChooser class
+//    public void onSave(){
+//        JFileChooser j = new JFileChooser("f:"); // Create an object of JFileChooser class
+//
+//        int r = j.showSaveDialog(null); // Invoke the showSaveDialog function to show the save dialog
+//
+//        if (r == JFileChooser.APPROVE_OPTION) {
+//
+//            // Set the label to the path of the selected directory
+//            File fi = new File(j.getSelectedFile().getAbsolutePath());
+//
+//            try {
+//                // Create a file writer
+//                FileWriter wr = new FileWriter(fi, false);
+//
+//                // Create buffered writer to write
+//                BufferedWriter w = new BufferedWriter(wr);
+//
+//                w.write(t.getText());
+//
+//                w.flush();
+//                w.close();
+//            }
+//
+//            catch (Exception evt) {
+//                JOptionPane.showMessageDialog(f, evt.getMessage());
+//            }
+//        }
+//
+//        else
+//            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
+//    }
 
-        int r = j.showSaveDialog(null); // Invoke the showSaveDialog function to show the save dialog
+    private boolean updateDocument(){ // Will try to update the existing document
+        return false;
+    }
 
-        if (r == JFileChooser.APPROVE_OPTION) {
+    private boolean createDocument(){ // Will try to create a new document
+        return false;
+    }
 
-            // Set the label to the path of the selected directory
-            File fi = new File(j.getSelectedFile().getAbsolutePath());
-
-            try {
-                // Create a file writer
-                FileWriter wr = new FileWriter(fi, false);
-
-                // Create buffered writer to write
-                BufferedWriter w = new BufferedWriter(wr);
-
-                w.write(t.getText());
-
-                w.flush();
-                w.close();
-            }
-
-            catch (Exception evt) {
-                JOptionPane.showMessageDialog(f, evt.getMessage());
-            }
+    public void onSave(){ // TODO: Keep writing logic for saving BLOB file to database
+        try{
+            updateDocument();
         }
-
-        else
-            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
+        catch (Exception ex){
+            createDocument();
+        }
     }
 
 

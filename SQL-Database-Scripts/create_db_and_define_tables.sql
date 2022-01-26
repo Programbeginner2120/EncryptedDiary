@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS UserData (
 CREATE TABLE IF NOT EXISTS UserDocuments(
     userDocumentsID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     userDocumentName VARCHAR (25) NOT NULL,
-    /*userDocumentContents VARBINARY (MAX) FILESTREAM NULL, */
+    userDocumentContents MEDIUMBLOB NOT NULL,
     encryptionMethod NVARCHAR(30) NOT NULL,
     decryptionMethod NVARCHAR(30) NOT NULL,
     userID int, FOREIGN KEY (userID) REFERENCES Users(userID)
