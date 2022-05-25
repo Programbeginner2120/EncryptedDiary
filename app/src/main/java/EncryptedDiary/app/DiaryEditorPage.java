@@ -227,6 +227,8 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         System.exit(0);
     }
 
+    //TODO: ADD / THINK ABOUT HOW TO IMPLEMENT THE OPEN FILE FUNCTIONALITY WITH MYSQL DATABASE FILES
+
 
     //TODO: Think about how to add encryption and decryption, should it be before text is sent to database?
 
