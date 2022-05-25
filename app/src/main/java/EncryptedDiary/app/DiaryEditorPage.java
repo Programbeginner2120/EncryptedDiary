@@ -4,8 +4,13 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.*;
 import java.awt.event.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
+import java.util.List;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
 
@@ -192,29 +197,13 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
         // If the user selects a file
         if (r == JFileChooser.APPROVE_OPTION) {
-            // Set the label to the path of the selected directory
-            File fi = new File(j.getSelectedFile().getAbsolutePath());
-
             try {
-                // String
-                String s1 = "";
-
-                // File Reader
-                FileReader fr = new FileReader(fi);
-
-                // Buffered Reader
-                BufferedReader br = new BufferedReader(fr);
-
-                // Initialize s1
-                s1 = br.readLine();
-
-                // Take the input from the file
-                while ((s1 = br.readLine()) != null) {
-                    s1 = s1 + "\n" + s1;
-                }
+                Path path = Paths.get(j.getSelectedFile().getAbsolutePath());
+                List<String> lines = Files.readAllLines(path);
 
                 // Set the text
-                t.setText(s1);
+                String res = String.join("\n", lines);
+                t.setText(res);
             }
 
             catch(Exception evt){

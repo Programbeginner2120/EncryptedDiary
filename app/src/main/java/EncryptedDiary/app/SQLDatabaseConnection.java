@@ -17,7 +17,6 @@ public class SQLDatabaseConnection {
         try{
             conn = DriverManager.getConnection(connectionUrl);
         }
-
         catch(SQLException ex){
             System.out.println(ex.getMessage());
         }
