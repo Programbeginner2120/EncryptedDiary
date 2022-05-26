@@ -159,12 +159,15 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * @return
      */
     private String onLoginButtonPress(String username, String password) {
-        Connection conn = SQLDatabaseConnection.openConnection();
+        SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
+        sqlConn.openConnection();
+        Connection conn = sqlConn.getConn();
         try{
             boolean validUsername = validateUsername(conn, username);
             boolean validPassHash = validatePassword(conn, password);
             if (validUsername && validPassHash) {
-                SQLDatabaseConnection.closeConnection(conn);
+                sqlConn.closeConnection();
+                conn = null;
                 return "SUCCESS";
             }
             return "FAILURE";

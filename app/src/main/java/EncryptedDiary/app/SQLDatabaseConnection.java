@@ -8,35 +8,50 @@ public class SQLDatabaseConnection {
         "password=Mk16914004006425529)/ENCRYPTED_DIARY_DB";
     private Connection conn = null;
 
+    public Connection getConn() {
+        return this.conn;
+    }
+
     /**
      * Opens a connection to the SQL Server Database specified by the String connectionUrl
      * @return Connection conn, a Connection to the database
      */
-    public static Connection openConnection(){
-        Connection conn = null;
+    public void openConnection(){
         try{
-            conn = DriverManager.getConnection(connectionUrl);
+            this.conn = DriverManager.getConnection(connectionUrl);
         }
         catch(SQLException ex){
             System.out.println(ex.getMessage());
         }
-        return conn;
     }
 
     /**
      * Closes a connection to the SQL Server database
      * @param conn - A Connection to the database
      */
-    public static void closeConnection(Connection conn){
+    public void closeConnection(){
         try{
-            conn.close();
+            this.conn.close();
         }
 
         catch(SQLException ex){
             System.out.println(ex.getMessage());
         }
+    }
 
-        conn = null;
+    public ResultSet executeSQLQuery(String query) {
+        try(Statement stmt = conn.createStatement()){
+            ResultSet rs = stmt.executeQuery(query);
+            System.out.println(rs.getString("username"));
+            return rs;
+        }
+        catch (SQLException sqlEx){
+            System.out.println(sqlEx.getMessage());
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+        }
+        return null;
     }
 
 }

@@ -10,6 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.List;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
@@ -38,16 +40,19 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         JMenuItem menuItem2 = new JMenuItem("Open");
         JMenuItem menuItem3 = new JMenuItem("Save");
         JMenuItem menuItem4 = new JMenuItem("Print");
+        JMenuItem menuItemExec = new JMenuItem("Execute SQL");
 
         menuItem1.addActionListener(this); // Adding action listeners for menu items
         menuItem2.addActionListener(this);
         menuItem3.addActionListener(this);
         menuItem4.addActionListener(this);
+        menuItemExec.addActionListener(this);
 
         m1.add(menuItem1); // Appending menu items to end of given menu m1
         m1.add(menuItem2);
         m1.add(menuItem3);
         m1.add(menuItem4);
+        m1.add(menuItemExec);
 
         JMenu m2 = new JMenu("Edit");
 
@@ -109,6 +114,14 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
         else if (s.equals("close"))
             onClose();
+
+        else if (s.equals("Execute SQL"))
+            onExec();
+    }
+
+    public void onExec(){
+
+        // Use this method to connect to sql
     }
 
 
