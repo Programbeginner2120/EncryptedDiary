@@ -124,11 +124,14 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     }
 
     public void onExec(){
-        String query = "SELECT * FROM Users";
-        SQLDatabaseConnection sqlDatabaseConnection = new SQLDatabaseConnection();
-        sqlDatabaseConnection.openConnection();
+        String list [] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
-        ArrayList<Object []> results = sqlDatabaseConnection.executeSQLQuery(query);
+        //TODO: CREATE JFRAME, JPANEL, JLIST WITH THESE ELEMENTS AND THEN TEST IT OUT WITH DOCUMENTS
+//        String query = "SELECT * FROM Users";
+//        SQLDatabaseConnection sqlDatabaseConnection = new SQLDatabaseConnection();
+//        sqlDatabaseConnection.openConnection();
+//
+//        ArrayList<Object []> results = sqlDatabaseConnection.executeSQLQuery(query);
     }
 
 

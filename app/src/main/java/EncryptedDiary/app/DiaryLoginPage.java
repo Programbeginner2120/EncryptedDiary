@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
 
@@ -111,45 +112,32 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     /**
      * Private static method to validate the username passed into the DiaryLoginPage. If username is valid, method
      * returns true, else returns false. If an exception occurs, a RuntimeException is thrown.
-     * @param conn - A Connection object enabling interaction with the SQL Server database
+     * @param sqlConn - A SQLDatabaseConnection object
      * @param username - String representing the inputted username by the user
      * @return - Returns true for valid username, false for invalid username
      */
-    private static boolean validateUsername(Connection conn, String username){
-        PreparedStatement ps;
-        try{
-            ps = conn.prepareStatement("SELECT * FROM Users WHERE username = ?");
-            ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            return rs.next();
-        }
-        catch (SQLException ex){
-            JOptionPane.showMessageDialog(null, "Something went wrong when trying " +
-                    "to connect to the network. Please try again later.");
-            throw new RuntimeException();
-        }
+    private static boolean validateUsername(SQLDatabaseConnection sqlConn, String username){
+        String query = String.format("SELECT * FROM Users WHERE username = '%s'", username) ;
+        ArrayList<Object []> results = sqlConn.executeSQLQuery(query);
+        if (results.size() > 0)
+            return true;
+        return false;
     }
 
     /**
      * Private static method to validate the password passed into the DiaryLoginPage. If password is valid, method
      * returns true, else returns false. If an exception occurs, a RuntimeException is thrown.
-     * @param conn - A Connection object enabling interaction with the SQL Server database
+     * @param sqlConn - A SQLDatabaseConnection object
      * @param password - String representing the inputted password by the user
      * @return Returns true for valid password, false for invalid password
      */
-    private static boolean validatePassword(Connection conn, String password){
-        PreparedStatement ps;
-        try{
-            ps = conn.prepareStatement("SELECT * FROM Users WHERE passHash = ?");
-            ps.setString(1, Integer.toString(password.hashCode()));
-            ResultSet rs = ps.executeQuery();
-            return rs.next();
-        }
-        catch (Exception ex){
-            JOptionPane.showMessageDialog(null, "Something went wrong when trying " +
-                    "to connect to the network. Please try again later.");
-            throw new RuntimeException();
-        }
+    private static boolean validatePassword(SQLDatabaseConnection sqlConn, String password){
+        String query = String.format("SELECT * FROM Users WHERE passHash = '%s'",
+                Integer.toString(password.hashCode()));
+        ArrayList<Object []> results = sqlConn.executeSQLQuery(query);
+        if (results.size() > 0)
+            return true;
+        return false;
     }
 
     /**
@@ -160,10 +148,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      */
     private String onLoginButtonPress(String username, String password) {
         SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
-        Connection conn = sqlConn.openConnection();
+        sqlConn.openConnection();
         try{
-            boolean validUsername = validateUsername(conn, username);
-            boolean validPassHash = validatePassword(conn, password);
+            boolean validUsername = validateUsername(sqlConn, username);
+            boolean validPassHash = validatePassword(sqlConn, password);
             if (validUsername && validPassHash) {
                 sqlConn.closeConnection();
                 return "SUCCESS";
@@ -173,6 +161,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
 
         catch (Exception ex){
             return "ERROR";
+        }
+
+        finally {
+            sqlConn.closeConnection();
         }
     }
 
