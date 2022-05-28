@@ -12,6 +12,10 @@ import javax.swing.plaf.metal.*;
 import javax.swing.text.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
@@ -120,8 +124,11 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     }
 
     public void onExec(){
+        String query = "SELECT * FROM Users";
+        SQLDatabaseConnection sqlDatabaseConnection = new SQLDatabaseConnection();
+        sqlDatabaseConnection.openConnection();
 
-        // Use this method to connect to sql
+        ArrayList<Object []> results = sqlDatabaseConnection.executeSQLQuery(query);
     }
 
 

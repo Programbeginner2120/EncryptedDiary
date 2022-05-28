@@ -1,6 +1,8 @@
 package EncryptedDiary.app;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SQLDatabaseConnection {
 
@@ -16,9 +18,23 @@ public class SQLDatabaseConnection {
      * Opens a connection to the SQL Server Database specified by the String connectionUrl
      * @return Connection conn, a Connection to the database
      */
-    public void openConnection(){
+    public Connection openConnection(){
         try{
             this.conn = DriverManager.getConnection(connectionUrl);
+            return this.conn;
+        }
+        catch(SQLException ex){
+            System.out.println(ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Closes a connection to the SQL Server database
+     */
+    public void closeConnection(){
+        try{
+            this.conn.close();
         }
         catch(SQLException ex){
             System.out.println(ex.getMessage());
@@ -26,24 +42,27 @@ public class SQLDatabaseConnection {
     }
 
     /**
-     * Closes a connection to the SQL Server database
-     * @param conn - A Connection to the database
+     * Executes a query on the database and returns the results in an array list
+     * @param query - SQL query to be executed in database
+     * @return results - array list of results
      */
-    public void closeConnection(){
+    public ArrayList<Object []> executeSQLQuery(String query) {
+        ArrayList<Object []> resultList = new ArrayList<>();
+        Statement stmt = null;
+        ResultSet rs = null;
         try{
-            this.conn.close();
-        }
-
-        catch(SQLException ex){
-            System.out.println(ex.getMessage());
-        }
-    }
-
-    public ResultSet executeSQLQuery(String query) {
-        try(Statement stmt = conn.createStatement()){
-            ResultSet rs = stmt.executeQuery(query);
-            System.out.println(rs.getString("username"));
-            return rs;
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(query);
+            ResultSetMetaData rsmd = rs.getMetaData();
+            final int columnCount = rsmd.getColumnCount();
+            while (rs.next()){
+                Object [] rowValues = new Object[columnCount];
+                for (int i = 1; i < columnCount; i++){
+                    rowValues[i-1] = rs.getObject(i);
+                }
+                resultList.add(rowValues);
+            }
+            return resultList;
         }
         catch (SQLException sqlEx){
             System.out.println(sqlEx.getMessage());
@@ -51,22 +70,11 @@ public class SQLDatabaseConnection {
         catch (Exception ex){
             System.out.println(ex.getMessage());
         }
+        finally {
+            if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
+            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+        }
         return null;
     }
 
 }
-
-//class main{
-//
-//    public static void main(String [] args){
-//        Connection conn = SQLDatabaseConnection.openConnection();
-//
-//        try{
-//            System.out.println(conn.isClosed());
-//        }
-//        catch (Exception ex){
-//            ;
-//        }
-//
-//    }
-//}
