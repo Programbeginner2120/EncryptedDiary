@@ -5,8 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
 
@@ -19,11 +19,15 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private JButton resetButton;
     private JCheckBox showPassword;
 
+    private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
+
     /**
      * Constructor for the DiaryLoginPage class, sets up layout and functionality of page via calling private
      * methods
      */
     public DiaryLoginPage() {
+        this.sqlConn.openConnection();
+
          this.container = getContentPane();
          this.userLabel = new JLabel("USERNAME");
          this.passwordLabel = new JLabel("PASSWORD");
@@ -57,6 +61,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * Private method used to deconstruct the DiaryLoginPage login page, freeing up memory of the application
      */
     private void deconstructLoginPage(){
+        this.freeOpenResources();
         this.dispose();
     }
 
@@ -112,13 +117,12 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     /**
      * Private static method to validate the username passed into the DiaryLoginPage. If username is valid, method
      * returns true, else returns false. If an exception occurs, a RuntimeException is thrown.
-     * @param sqlConn - A SQLDatabaseConnection object
      * @param username - String representing the inputted username by the user
      * @return - Returns true for valid username, false for invalid username
      */
-    private static boolean validateUsername(SQLDatabaseConnection sqlConn, String username){
+    private boolean validateUsername(String username){
         String query = String.format("SELECT * FROM Users WHERE username = '%s'", username) ;
-        ArrayList<Object []> results = sqlConn.executeSQLQuery(query);
+        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
         if (results.size() > 0)
             return true;
         return false;
@@ -127,14 +131,13 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     /**
      * Private static method to validate the password passed into the DiaryLoginPage. If password is valid, method
      * returns true, else returns false. If an exception occurs, a RuntimeException is thrown.
-     * @param sqlConn - A SQLDatabaseConnection object
      * @param password - String representing the inputted password by the user
      * @return Returns true for valid password, false for invalid password
      */
-    private static boolean validatePassword(SQLDatabaseConnection sqlConn, String password){
+    private boolean validatePassword(String password){
         String query = String.format("SELECT * FROM Users WHERE passHash = '%s'",
                 Integer.toString(password.hashCode()));
-        ArrayList<Object []> results = sqlConn.executeSQLQuery(query);
+        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
         if (results.size() > 0)
             return true;
         return false;
@@ -146,26 +149,21 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * @param password
      * @return
      */
-    private String onLoginButtonPress(String username, String password) {
-        SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
-        sqlConn.openConnection();
-        try{
-            boolean validUsername = validateUsername(sqlConn, username);
-            boolean validPassHash = validatePassword(sqlConn, password);
-            if (validUsername && validPassHash) {
-                sqlConn.closeConnection();
-                return "SUCCESS";
-            }
-            return "FAILURE";
+    private ArrayList<Object []> onLoginButtonPress(String username, String password) {
+
+        boolean validUsername = validateUsername(username);
+        boolean validPassHash = validatePassword(password);
+        if (validUsername && validPassHash) {
+            ArrayList<Object []> userInfo = this.sqlConn.executeSQLQuery(String.format(
+                    "SELECT userID, username FROM Users WHERE username = '%s'", username));
+            this.sqlConn.closeConnection();
+            return userInfo;
+        }
+        else {
+            this.sqlConn.closeConnection();
+            return null;
         }
 
-        catch (Exception ex){
-            return "ERROR";
-        }
-
-        finally {
-            sqlConn.closeConnection();
-        }
     }
 
     private void onResetButtonPress() {
@@ -187,27 +185,32 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             String userText = userTextField.getText();
             String passwordText = String.valueOf(passwordField.getPassword());
 
-            String loginStringResult = this.onLoginButtonPress(userText, passwordText);
-            if (loginStringResult.equals("SUCCESS")) {
+            ArrayList<Object []> userInfo = this.onLoginButtonPress(userText, passwordText);
+            if (userInfo != null) {
                 JOptionPane.showMessageDialog(this, "Login Successful");
                 this.deconstructLoginPage();
-                moveToDiaryEditorPage();
+                moveToDiaryEditorPage(new User((Integer) userInfo.get(0)[0], (String) userInfo.get(0)[1]));
             }
-            else if (loginStringResult.equals("FAILURE"))
+            else if (userInfo == null){
                 JOptionPane.showMessageDialog(this, "Invalid Username or Password");
-//            else if (loginStringResult.equals("ERROR"))
-//                ;
-        }
+            }
+            else{
+                // TODO: PUT ANOTHER STATEMENT HERE WHEN CLEANING UP CODE TO HANDLE NON-CREDENTIAL RELATED ERRORS
+            }
 
+        }
         else if (e.getSource() == resetButton)
             onResetButtonPress(); // Reset button functionality
-
         else
             onShowPasswordButtonPress();
     }
 
-    public static void moveToDiaryEditorPage(){
-        DiaryEditorPage editorPage = new DiaryEditorPage();
+    public static void moveToDiaryEditorPage(User user){
+        DiaryEditorPage editorPage = new DiaryEditorPage(user);
+    }
+
+    public void freeOpenResources() {
+        this.sqlConn.closeConnection();
     }
 }
 

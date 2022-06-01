@@ -17,14 +17,23 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
+
+import EncryptedDiary.app.CustomComponents.PaginatedList;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
 
     JTextArea t; // Text component
     JFrame f; // Frame
-    String currentFileName = null;
 
-    DiaryEditorPage() {
+    private User currentUser;
+    private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
+
+    DiaryEditorPage(User currentUser) {
+        this.currentUser = currentUser;
+
+        this.sqlConn.openConnection();
+
         f = new JFrame("Diary Editor"); // creating a new JFrame
 
         try {
@@ -44,19 +53,16 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         JMenuItem menuItem2 = new JMenuItem("Open");
         JMenuItem menuItem3 = new JMenuItem("Save");
         JMenuItem menuItem4 = new JMenuItem("Print");
-        JMenuItem menuItemExec = new JMenuItem("Execute SQL");
 
         menuItem1.addActionListener(this); // Adding action listeners for menu items
         menuItem2.addActionListener(this);
         menuItem3.addActionListener(this);
         menuItem4.addActionListener(this);
-        menuItemExec.addActionListener(this);
 
         m1.add(menuItem1); // Appending menu items to end of given menu m1
         m1.add(menuItem2);
         m1.add(menuItem3);
         m1.add(menuItem4);
-        m1.add(menuItemExec);
 
         JMenu m2 = new JMenu("Edit");
 
@@ -86,7 +92,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
         f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        f.show();
+        f.setVisible(true);
     }
 
 
@@ -118,20 +124,6 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
         else if (s.equals("close"))
             onClose();
-
-        else if (s.equals("Execute SQL"))
-            onExec();
-    }
-
-    public void onExec(){
-        String list [] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-
-        //TODO: CREATE JFRAME, JPANEL, JLIST WITH THESE ELEMENTS AND THEN TEST IT OUT WITH DOCUMENTS
-//        String query = "SELECT * FROM Users";
-//        SQLDatabaseConnection sqlDatabaseConnection = new SQLDatabaseConnection();
-//        sqlDatabaseConnection.openConnection();
-//
-//        ArrayList<Object []> results = sqlDatabaseConnection.executeSQLQuery(query);
     }
 
 
@@ -199,7 +191,6 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         }
     }
 
-
     public void onPrint(){
         try {
             // print the file
@@ -210,50 +201,60 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         }
     }
 
+//    public void onOpen(){ // may need for later, for now just commenting out
+//        // Create an object of JFileChooser class
+//        JFileChooser j = new JFileChooser("f:");
+//
+//        // Invoke the showsOpenDialog function to show the save dialog
+//        int r = j.showOpenDialog(null);
+//
+//        // If the user selects a file
+//        if (r == JFileChooser.APPROVE_OPTION) {
+//            try {
+//                Path path = Paths.get(j.getSelectedFile().getAbsolutePath());
+//                List<String> lines = Files.readAllLines(path);
+//
+//                // Set the text
+//                String res = String.join("\n", lines);
+//                t.setText(res);
+//            }
+//
+//            catch(Exception evt){
+//                JOptionPane.showMessageDialog(f, evt.getMessage());
+//            }
+//        }
+//
+//        // If the user cancelled the operation
+//        else
+//            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
+//    }
 
-    public void onOpen(){
-        // Create an object of JFileChooser class
-        JFileChooser j = new JFileChooser("f:");
-
-        // Invoke the showsOpenDialog function to show the save dialog
-        int r = j.showOpenDialog(null);
-
-        // If the user selects a file
-        if (r == JFileChooser.APPROVE_OPTION) {
-            try {
-                Path path = Paths.get(j.getSelectedFile().getAbsolutePath());
-                List<String> lines = Files.readAllLines(path);
-
-                // Set the text
-                String res = String.join("\n", lines);
-                t.setText(res);
-            }
-
-            catch(Exception evt){
-                JOptionPane.showMessageDialog(f, evt.getMessage());
-            }
-        }
-
-        // If the user cancelled the operation
-        else
-            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
+    private ArrayList<Object []> getUserFiles() {
+        String query = String.format("SELECT userDocumentName, userDocumentContents FROM userDocuments " +
+                "WHERE userDocuments.userID = %d", this.currentUser.getUserID());
+        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
+        return results;
     }
 
+    public void onOpen(){
+        ArrayList<Object []> userInfo = this.getUserFiles();
+        PaginatedList myList = new PaginatedList(new JList(new String[] {"Monday", "Tuesday"}), 10);
+        JFrame frame = new JFrame("frame");
+        frame.setSize(400,400);
+        frame.add(myList);
+        frame.setVisible(true);
+        frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    }
 
     public void onNew(){
         t.setText("");
     }
 
-
     public void onClose(){
+        this.sqlConn.closeConnection();
         f.setVisible(false);
         System.exit(0);
     }
-
-    //TODO: ADD / THINK ABOUT HOW TO IMPLEMENT THE OPEN FILE FUNCTIONALITY WITH MYSQL DATABASE FILES
-
-
-    //TODO: Think about how to add encryption and decryption, should it be before text is sent to database?
 
     public static void EncryptPageContents() {
         ;

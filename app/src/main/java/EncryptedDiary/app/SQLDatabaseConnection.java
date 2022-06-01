@@ -18,15 +18,13 @@ public class SQLDatabaseConnection {
      * Opens a connection to the SQL Server Database specified by the String connectionUrl
      * @return Connection conn, a Connection to the database
      */
-    public Connection openConnection(){
+    public void openConnection(){
         try{
             this.conn = DriverManager.getConnection(connectionUrl);
-            return this.conn;
         }
         catch(SQLException ex){
             System.out.println(ex.getMessage());
         }
-        return null;
     }
 
     /**
@@ -57,7 +55,7 @@ public class SQLDatabaseConnection {
             final int columnCount = rsmd.getColumnCount();
             while (rs.next()){
                 Object [] rowValues = new Object[columnCount];
-                for (int i = 1; i < columnCount; i++){
+                for (int i = 1; i <= columnCount; i++){
                     rowValues[i-1] = rs.getObject(i);
                 }
                 resultList.add(rowValues);
