@@ -3,6 +3,7 @@ package EncryptedDiary.app;
 import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.plaf.metal.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import EncryptedDiary.app.CustomComponents.PaginatedList;
 
@@ -13,6 +14,8 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
     private JTextArea textComponent; // Text component
     private JFrame editorFrame; // Frame
+
+    private String currentDocumentName = "Untitled";
 
     DiaryEditorPage(User currentUser) {
         this.currentUser = currentUser;
@@ -26,7 +29,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
             MetalLookAndFeel.setCurrentTheme(new OceanTheme()); // setting theme to ocean
         }
-        catch (Exception ex){} // Just failing silently
+        catch (Exception ignored){} // Just failing silently
 
         this.textComponent = new JTextArea(); // Text component
 
@@ -176,27 +179,60 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      *
      * @return
      */
-    private boolean updateDocument(){ // Will try to update the existing document
-        return false;
+    private void updateDocument(String documentName) throws Exception{ // Will try to update the existing document
+        String query = String.format("UPDATE userDocuments SET userDocumentContents = 'Contents Updated' WHERE userID" +
+                " = %d AND userDocumentName = '%s'", this.currentUser.getUserID(), documentName);
+        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
+        if (executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "Success in" +
+                    " updating this document.");
+        }
+        if (!executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "There was a problem in" +
+                    " updating this document.");
+        }
     }
 
     /**
      *
      * @return
      */
-    private boolean createDocument(){ // Will try to create a new document
-        return false;
+    private void createDocument(String documentName) throws Exception{ // Will try to create a new document
+        String query = String.format("INSERT INTO userDocuments (userDocumentName, userDocumentContents," +
+                " encryptionMethod, decryptionMethod, userID) VALUES ('%s', '%s', '%s', '%s', %d)", documentName,
+                "Contents", "Encrypt", "Decrypt", this.currentUser.getUserID());
+        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
+        if (executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "Success in" +
+                    " creating this document.");
+        }
+        if (!executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "There was a problem in" +
+                    " creating this document.");
+        }
     }
 
     /**
      *
      */
     public void onSave(){ // TODO: Keep writing logic for saving BLOB file to database
-        try{
-            updateDocument();
+        if (this.currentDocumentName.equals("Untitled"))
+            this.currentDocumentName = JOptionPane.showInputDialog(this.editorFrame, "Enter name of file");
+
+        String query = String.format("SELECT userDocumentName FROM userDocuments where userID = %d AND " +
+                "userDocumentName = '%s'", this.currentUser.getUserID(), this.currentDocumentName);
+        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
+        try {
+            if (results.size() > 0){
+                updateDocument(this.currentDocumentName);
+            }
+            else{
+                createDocument(this.currentDocumentName);
+            }
         }
-        catch (Exception ex){
-            createDocument();
+        catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "An error occurred while trying to conduct" +
+                    " this operation.");
         }
     }
 
@@ -212,34 +248,6 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
             JOptionPane.showMessageDialog(this.editorFrame, evt.getMessage());
         }
     }
-
-//    public void onOpen(){ // may need for later, for now just commenting out
-//        // Create an object of JFileChooser class
-//        JFileChooser j = new JFileChooser("f:");
-//
-//        // Invoke the showsOpenDialog function to show the save dialog
-//        int r = j.showOpenDialog(null);
-//
-//        // If the user selects a file
-//        if (r == JFileChooser.APPROVE_OPTION) {
-//            try {
-//                Path path = Paths.get(j.getSelectedFile().getAbsolutePath());
-//                List<String> lines = Files.readAllLines(path);
-//
-//                // Set the text
-//                String res = String.join("\n", lines);
-//                t.setText(res);
-//            }
-//
-//            catch(Exception evt){
-//                JOptionPane.showMessageDialog(f, evt.getMessage());
-//            }
-//        }
-//
-//        // If the user cancelled the operation
-//        else
-//            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
-//    }
 
     /**
      * Private method used to retrieve the list of results when the query in executed in SQL
@@ -269,6 +277,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Wrapper method used to create a new document
      */
     public void onNew(){
+        this.currentDocumentName = "Untitled";
         this.textComponent.setText("");
     }
 

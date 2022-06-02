@@ -75,4 +75,25 @@ public class SQLDatabaseConnection {
         return null;
     }
 
+    public boolean executeSQLUpdate(String query){
+        Statement stmt = null;
+        int numberOfAffectedRows = 0;
+        try{
+            stmt = conn.createStatement();
+            numberOfAffectedRows = stmt.executeUpdate(query); // not used right now but for documentation purposes assigned
+            return true;
+        }
+        catch (SQLException sqlEx){
+            System.out.println(sqlEx.getMessage());
+            return false;
+        }
+        catch (Exception ex){
+            System.out.println(ex.getMessage());
+            return false;
+        }
+        finally {
+            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+        }
+    }
+
 }
