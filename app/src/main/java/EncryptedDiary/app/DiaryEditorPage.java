@@ -1,40 +1,25 @@
 package EncryptedDiary.app;
 
-import java.awt.*;
 import javax.swing.*;
-import java.io.*;
 import java.awt.event.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import javax.swing.plaf.metal.*;
-import javax.swing.text.*;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-
 import EncryptedDiary.app.CustomComponents.PaginatedList;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
 
-    JTextArea t; // Text component
-    JFrame f; // Frame
-
     private User currentUser;
     private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
+
+    private JTextArea textComponent; // Text component
+    private JFrame editorFrame; // Frame
 
     DiaryEditorPage(User currentUser) {
         this.currentUser = currentUser;
 
         this.sqlConn.openConnection();
 
-        f = new JFrame("Diary Editor"); // creating a new JFrame
+        this.editorFrame = new JFrame("Diary Editor"); // creating a new JFrame
 
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel"); // setting metal look and feel
@@ -43,7 +28,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         }
         catch (Exception ex){} // Just failing silently
 
-        t = new JTextArea(); // Text component
+        this.textComponent = new JTextArea(); // Text component
 
         JMenuBar mb = new JMenuBar(); // Creating a menu bar
 
@@ -86,16 +71,21 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         mb.add(m2);
         mb.add(mc);
 
-        f.setJMenuBar(mb);
-        f.add(t);
-        f.setSize(500, 500);
+        this.editorFrame.setJMenuBar(mb);
+        this.editorFrame.add(this.textComponent);
+        this.editorFrame.setSize(500, 500);
 
-        f.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.editorFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        f.setVisible(true);
+        this.editorFrame.setVisible(true);
     }
 
 
+    /**
+     * Abstract method defined by the ActionListener interface that defines responses to different buttons in the
+     * DiaryEditorPage being pressed.
+     * @param e - The ActionEvent triggered via the press of a button
+     */
     @Override
     // If a button is pressed this method is called
     public void actionPerformed(ActionEvent e) {
@@ -127,18 +117,26 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     }
 
 
+    /**
+     * Wrapper method to used "cut" the text in the textComponent in the JTextArea
+     */
     public void onCut(){
-        t.cut();
+        this.textComponent.cut();
     }
 
 
+    /**
+     * Wrapper method used to "copy" the text in the textComponent in the JTextArea
+     */
     public void onCopy(){
-        t.copy();
+        this.textComponent.copy();
     }
 
-
+    /**
+     * Wrapper method used to "paste" given text in the textComponent in the JTextArea
+     */
     public void onPaste(){
-        t.paste();
+        this.textComponent.paste();
     }
 
 
@@ -174,14 +172,25 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 //            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
 //    }
 
+    /**
+     *
+     * @return
+     */
     private boolean updateDocument(){ // Will try to update the existing document
         return false;
     }
 
+    /**
+     *
+     * @return
+     */
     private boolean createDocument(){ // Will try to create a new document
         return false;
     }
 
+    /**
+     *
+     */
     public void onSave(){ // TODO: Keep writing logic for saving BLOB file to database
         try{
             updateDocument();
@@ -191,13 +200,16 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         }
     }
 
+    /**
+     * Wrapper method used to print the text in the textComponent of the JTextArea
+     */
     public void onPrint(){
         try {
             // print the file
-            t.print();
+            this.textComponent.print();
         }
         catch (Exception evt) {
-            JOptionPane.showMessageDialog(f, evt.getMessage());
+            JOptionPane.showMessageDialog(this.editorFrame, evt.getMessage());
         }
     }
 
@@ -229,6 +241,10 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 //            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
 //    }
 
+    /**
+     * Private method used to retrieve the list of results when the query in executed in SQL
+     * @return results - the results of the SQL query executed
+     */
     private ArrayList<Object []> getUserFiles() {
         String query = String.format("SELECT userDocumentName, userDocumentContents FROM userDocuments " +
                 "WHERE userDocuments.userID = %d", this.currentUser.getUserID());
@@ -236,6 +252,9 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         return results;
     }
 
+    /**
+     * Method used display the names of files that the user has created
+     */
     public void onOpen(){
         ArrayList<Object []> userInfo = this.getUserFiles();
         PaginatedList myList = new PaginatedList(new JList(new String[] {"Monday", "Tuesday"}), 10);
@@ -246,21 +265,39 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
     }
 
+    /**
+     * Wrapper method used to create a new document
+     */
     public void onNew(){
-        t.setText("");
+        this.textComponent.setText("");
     }
 
-    public void onClose(){
+    /**
+     * Private method used to close currently open resources
+     */
+    private void closeOpenResources(){
         this.sqlConn.closeConnection();
-        f.setVisible(false);
+    }
+
+    /**
+     * Method used to dispose of DiaryEditorPage & calls closeOpenResources(), which closes open resources
+     */
+    public void onClose(){
+        closeOpenResources();
+        this.editorFrame.setVisible(false);
         System.exit(0);
     }
 
+    /**
+     *
+     */
     public static void EncryptPageContents() {
         ;
     }
 
-
+    /**
+     *
+     */
     public static void DecryptPageContents() {
         ;
     }

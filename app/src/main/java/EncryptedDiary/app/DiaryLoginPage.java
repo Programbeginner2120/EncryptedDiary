@@ -6,9 +6,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
+
+    private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
 
     private Container container;
     private JLabel userLabel;
@@ -19,15 +20,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private JButton resetButton;
     private JCheckBox showPassword;
 
-    private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
-
     /**
      * Constructor for the DiaryLoginPage class, sets up layout and functionality of page via calling private
      * methods
      */
     public DiaryLoginPage() {
-        this.sqlConn.openConnection();
-
          this.container = getContentPane();
          this.userLabel = new JLabel("USERNAME");
          this.passwordLabel = new JLabel("PASSWORD");
@@ -44,7 +41,18 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         addActionEvent();
 
         constructLoginPage();
+        openNeededResources();
     }
+
+    /**
+     * Private method used to open needed resources for the running of the DiaryLoginPage
+     */
+    private void openNeededResources(){ this.sqlConn.openConnection(); }
+
+    /**
+     * Private method used to close all resources open after this page is disposed
+     */
+    public void freeOpenResources() { this.sqlConn.closeConnection(); }
 
     /**
      * Private method used to construct the DiaryLoginPage login page
@@ -123,9 +131,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private boolean validateUsername(String username){
         String query = String.format("SELECT * FROM Users WHERE username = '%s'", username) ;
         ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
-        if (results.size() > 0)
-            return true;
-        return false;
+        return results.size() > 0;
     }
 
     /**
@@ -138,39 +144,39 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
         String query = String.format("SELECT * FROM Users WHERE passHash = '%s'",
                 Integer.toString(password.hashCode()));
         ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
-        if (results.size() > 0)
-            return true;
-        return false;
+        return results.size() > 0;
     }
 
     /**
-     *
-     * @param username
-     * @param password
-     * @return
+     * Private method used to validate username and password credentials on press of loginButton
+     * @param username - Username inputted by user
+     * @param password - Password inputted by user
+     * @return userInfo - ArrayList of object arrays that contain results from SQL query
      */
     private ArrayList<Object []> onLoginButtonPress(String username, String password) {
-
         boolean validUsername = validateUsername(username);
         boolean validPassHash = validatePassword(password);
         if (validUsername && validPassHash) {
             ArrayList<Object []> userInfo = this.sqlConn.executeSQLQuery(String.format(
                     "SELECT userID, username FROM Users WHERE username = '%s'", username));
-            this.sqlConn.closeConnection();
             return userInfo;
         }
         else {
-            this.sqlConn.closeConnection();
             return null;
         }
-
     }
 
+    /**
+     * Private method used to clear all text in login text areas when resetButton is pressed
+     */
     private void onResetButtonPress() {
         userTextField.setText("");
         passwordField.setText("");
     }
 
+    /**
+     * Private method used to show or hide the password text area when showPassword is pressed
+     */
     private void onShowPasswordButtonPress() {
         if (showPassword.isSelected())
             passwordField.setEchoChar((char) 0);
@@ -178,6 +184,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             passwordField.setEchoChar('•');
     }
 
+    /**
+     * Abstract method implemented from ActionListener interface that responds to different buttons in DiaryLoginPage
+     * being pressed
+     * @param e - The ActionEvent triggered via the press of a button
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         // Login button press response
@@ -197,7 +208,6 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             else{
                 // TODO: PUT ANOTHER STATEMENT HERE WHEN CLEANING UP CODE TO HANDLE NON-CREDENTIAL RELATED ERRORS
             }
-
         }
         else if (e.getSource() == resetButton)
             onResetButtonPress(); // Reset button functionality
@@ -205,17 +215,15 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             onShowPasswordButtonPress();
     }
 
-    public static void moveToDiaryEditorPage(User user){
+    /**
+     * Private method used to move from the DiaryLoginPage to the DiaryEditorPage. Requires a validated User
+     * @param user - An instance of the User class which contains logged-in user's information
+     */
+    private static void moveToDiaryEditorPage(User user){
         DiaryEditorPage editorPage = new DiaryEditorPage(user);
-    }
-
-    public void freeOpenResources() {
-        this.sqlConn.closeConnection();
     }
 }
 
 //TODO: IMPLEMENT JUNIT TESTING BEFORE PROCEEDING WITH MORE CODE SO THAT I KNOW THE FOUNDATIONAL FUNCTIONALITIES
 // WORK BEFORE MOVING ON
-
-//TODO: FIGURE OUT WHY YOU CAN'T REPEATEDLY OPEN AND CLOSE NEW CONNECTIONS TO THE DATABASE WHEN ATTEMPTING TO LOGIN
 

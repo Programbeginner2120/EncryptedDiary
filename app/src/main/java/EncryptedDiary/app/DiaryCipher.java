@@ -12,7 +12,6 @@ public class DiaryCipher {
 
     private SecretKey myKey;
 
-
     // Basic constructor
     public DiaryCipher(){
         SecretKey myKey = this.generateSecretKey("AES");
