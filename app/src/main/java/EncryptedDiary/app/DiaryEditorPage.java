@@ -142,39 +142,6 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         this.textComponent.paste();
     }
 
-
-//    public void onSave(){
-//        JFileChooser j = new JFileChooser("f:"); // Create an object of JFileChooser class
-//
-//        int r = j.showSaveDialog(null); // Invoke the showSaveDialog function to show the save dialog
-//
-//        if (r == JFileChooser.APPROVE_OPTION) {
-//
-//            // Set the label to the path of the selected directory
-//            File fi = new File(j.getSelectedFile().getAbsolutePath());
-//
-//            try {
-//                // Create a file writer
-//                FileWriter wr = new FileWriter(fi, false);
-//
-//                // Create buffered writer to write
-//                BufferedWriter w = new BufferedWriter(wr);
-//
-//                w.write(t.getText());
-//
-//                w.flush();
-//                w.close();
-//            }
-//
-//            catch (Exception evt) {
-//                JOptionPane.showMessageDialog(f, evt.getMessage());
-//            }
-//        }
-//
-//        else
-//            JOptionPane.showMessageDialog(f, "the user cancelled the operation");
-//    }
-
     /**
      *
      * @return
