@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.plaf.metal.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import EncryptedDiary.app.CustomComponents.PaginatedList;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
@@ -14,6 +16,8 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
     private JTextArea textComponent; // Text component
     private JFrame editorFrame; // Frame
+
+    private JFrame listFrame;
 
     private String currentDocumentName = "Untitled";
 
@@ -220,9 +224,20 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Private method used to retrieve the list of results when the query in executed in SQL
      * @return results - the results of the SQL query executed
      */
-    private ArrayList<Object []> getUserFiles() {
+    private ArrayList<Object []> getUserFileNames() {
         String query = String.format("SELECT userDocumentName, userDocumentContents FROM userDocuments " +
                 "WHERE userDocuments.userID = %d", this.currentUser.getUserID());
+        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
+        return results;
+    }
+
+    /**
+     * Private method used to retrieve the list of results when the query in executed in SQL
+     * @return results - the results of the SQL query executed
+     */
+    private ArrayList<Object []> getUserFileContents() {
+        String query = String.format("SELECT userDocumentContents FROM userDocuments WHERE userDocuments.userID = %d",
+                this.currentUser.getUserID());
         ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
         return results;
     }
@@ -231,13 +246,23 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Method used display the names of files that the user has created
      */
     public void onOpen(){
-        ArrayList<Object []> userInfo = this.getUserFiles();
-        PaginatedList myList = new PaginatedList(new JList(new String[] {"Monday", "Tuesday"}), 10);
-        JFrame frame = new JFrame("frame");
-        frame.setSize(400,400);
-        frame.add(myList);
-        frame.setVisible(true);
-        frame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        ArrayList<Object []> queryResults = this.getUserFileNames();
+
+        String [] fileNames = new String[queryResults.size()];
+        for (int i = 0; i < queryResults.size(); i++){
+            fileNames[i] = (String) queryResults.get(i)[0];
+        }
+
+        PaginatedList myList = new PaginatedList(this, new JList(fileNames), 10);
+        this.listFrame = new JFrame("frame");
+        listFrame.setSize(400,400);
+        listFrame.add(myList);
+        listFrame.setVisible(true);
+        listFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    }
+
+    public void disposeListFrame(){
+        this.listFrame.setVisible(false);
     }
 
     /**

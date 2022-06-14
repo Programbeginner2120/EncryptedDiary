@@ -1,5 +1,7 @@
 package EncryptedDiary.app.CustomComponents;//package EncryptedDiary.app.CustomComponents;
 
+import EncryptedDiary.app.DiaryEditorPage;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,6 +15,9 @@ import java.awt.event.ActionEvent;
 
 public class PaginatedList extends JPanel {
 
+    private DiaryEditorPage parentFrame;
+    private String chosenDocumentName;
+
     private final int pageSize;
     private final JList list;
     private final ListModel model;
@@ -21,16 +26,22 @@ public class PaginatedList extends JPanel {
     private int currPageNum;
     private JLabel countLabel;
     private JButton first, prev, next, last;
+    private JButton confirm;
+    private JButton cancel;
 
     /**
      * @param list the jlist
      * @param pageSize the number of rows visible in the jlist
      */
-    public PaginatedList(JList list, int pageSize) {
+    public PaginatedList(DiaryEditorPage parentFrame, JList list, int pageSize) {
         super();
         this.pageSize = pageSize;
         this.list = list;
         this.model = list.getModel();
+
+        this.chosenDocumentName = null;
+
+        this.parentFrame = parentFrame;
 
         //work out how many pages there are
         this.lastPageNum = model.getSize() / pageSize + (model.getSize() % pageSize != 0 ? 1 : 0);
@@ -76,12 +87,32 @@ public class PaginatedList extends JPanel {
             }
         });
 
+        confirm = new JButton(new AbstractAction("Ok") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println(list.getSelectedIndex());
+            }
+        });
+
+        cancel = new JButton(new AbstractAction("Cancel") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                parentFrame.disposeListFrame();
+            }
+        });
+
         JPanel bar = new JPanel(new GridLayout(1, 4));
         bar.add(first);
         bar.add(prev);
         bar.add(next);
         bar.add(last);
+        bar.add(confirm);
+        bar.add(cancel);
         return bar;
+    }
+
+    private void disposePage(){
+        this.getParent().getParent().setVisible(false);
     }
 
     private void updatePage() {
@@ -110,24 +141,4 @@ public class PaginatedList extends JPanel {
         next.setEnabled(canGoFwd);
         last.setEnabled(canGoFwd);
     }
-
-
-//    public static void main(String args[]) throws Exception {
-//
-//        // create 100 elements of dummy data.
-//        Integer[] data = new Integer[100];
-//        for (int i = 0; i < data.length; i++) {
-//            data[i] = i + 1;
-//        }
-//
-//        // create a paginated list with page size 20
-//        PaginatedList list = new PaginatedList(new JList(data), 20);
-//
-//        // add it to a frame
-//        JFrame f = new JFrame();
-//        f.add(list);
-//        f.setSize(100, 100);
-//        f.pack();
-//        f.setVisible(true);
-//    }
 }
