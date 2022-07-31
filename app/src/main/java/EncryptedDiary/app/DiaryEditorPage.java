@@ -4,8 +4,11 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.plaf.metal.*;
 import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import EncryptedDiary.app.CustomComponents.PaginatedList;
 
@@ -20,8 +23,9 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     private JFrame listFrame;
 
     private String currentDocumentName = "Untitled";
+    private int currentDocumentIndex;
 
-    DiaryEditorPage(User currentUser) {
+    public DiaryEditorPage(User currentUser) {
         this.currentUser = currentUser;
 
         this.sqlConn.openConnection();
@@ -87,6 +91,13 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         this.editorFrame.setVisible(true);
     }
 
+    public void setCurrentDocumentName(String currentDocumentName){
+        this.currentDocumentName = currentDocumentName;
+    }
+
+    public void setCurrentDocumentIndex(int currentDocumentIndex){
+        this.currentDocumentIndex = currentDocumentIndex;
+    }
 
     /**
      * Abstract method defined by the ActionListener interface that defines responses to different buttons in the
@@ -192,7 +203,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
         String query = String.format("SELECT userDocumentName FROM userDocuments where userID = %d AND " +
                 "userDocumentName = '%s'", this.currentUser.getUserID(), this.currentDocumentName);
-        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
+        ArrayList<String []> results = this.sqlConn.executeSQLQuery(query);
         try {
             if (results.size() > 0){
                 updateDocument(this.currentDocumentName);
@@ -224,10 +235,10 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Private method used to retrieve the list of results when the query in executed in SQL
      * @return results - the results of the SQL query executed
      */
-    private ArrayList<Object []> getUserFileNames() {
+    private ArrayList<String []> getUserFileNames() {
         String query = String.format("SELECT userDocumentName, userDocumentContents FROM userDocuments " +
                 "WHERE userDocuments.userID = %d", this.currentUser.getUserID());
-        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
+        ArrayList<String []> results = this.sqlConn.executeSQLQuery(query);
         return results;
     }
 
@@ -235,30 +246,45 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Private method used to retrieve the list of results when the query in executed in SQL
      * @return results - the results of the SQL query executed
      */
-    private ArrayList<Object []> getUserFileContents() {
+    private ArrayList<String []> getUserFileContents() {
         String query = String.format("SELECT userDocumentContents FROM userDocuments WHERE userDocuments.userID = %d",
                 this.currentUser.getUserID());
-        ArrayList<Object []> results = this.sqlConn.executeSQLQuery(query);
+        ArrayList<String []> results = this.sqlConn.executeSQLQuery(query);
         return results;
     }
 
-    /**
-     * Method used display the names of files that the user has created
-     */
-    public void onOpen(){
-        ArrayList<Object []> queryResults = this.getUserFileNames();
-
-        String [] fileNames = new String[queryResults.size()];
-        for (int i = 0; i < queryResults.size(); i++){
-            fileNames[i] = (String) queryResults.get(i)[0];
-        }
-
+    private void instantiateListFrame(String [] fileNames, JFrame parentFrame){
         PaginatedList myList = new PaginatedList(this, new JList(fileNames), 10);
         this.listFrame = new JFrame("frame");
         listFrame.setSize(400,400);
         listFrame.add(myList);
         listFrame.setVisible(true);
         listFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+
+        if (!this.currentDocumentName.equals("Untitled")){
+            List<String[]> fileContents = this.getUserFileContents();
+            String [] str = fileContents.get(this.currentDocumentIndex);
+            System.out.println(Arrays.toString(str));
+
+//            System.out.println(contentsArr.toString());
+//            String contentsStr = Arrays.stream(contentsArr).collect(Collectors.joining());
+//            System.out.println(contentsStr);
+//            this.textComponent.setText();
+        }
+    }
+
+    /**
+     * Method used display the names of files that the user has created
+     */
+    public void onOpen(){
+        ArrayList<String []> queryResults = this.getUserFileNames();
+
+        String [] fileNames = new String[queryResults.size()];
+        for (int i = 0; i < queryResults.size(); i++){
+            fileNames[i] = queryResults.get(i)[0];
+        }
+
+        this.instantiateListFrame(fileNames, this);
     }
 
     public void disposeListFrame(){
@@ -292,14 +318,14 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     /**
      *
      */
-    public static void EncryptPageContents() {
+    public static void encryptPageContents() {
         ;
     }
 
     /**
      *
      */
-    public static void DecryptPageContents() {
+    public static void decryptPageContents() {
         ;
     }
 }

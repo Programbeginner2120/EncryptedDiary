@@ -90,7 +90,10 @@ public class PaginatedList extends JPanel {
         confirm = new JButton(new AbstractAction("Ok") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println(list.getSelectedIndex());
+                String documentName = (String) list.getModel().getElementAt(list.getSelectedIndex());
+                parentFrame.setCurrentDocumentName(documentName);
+                parentFrame.setCurrentDocumentIndex(list.getSelectedIndex());
+                parentFrame.disposeListFrame();
             }
         });
 

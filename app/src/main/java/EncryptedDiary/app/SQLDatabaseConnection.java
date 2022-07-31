@@ -44,8 +44,8 @@ public class SQLDatabaseConnection {
      * @param query - SQL query to be executed in database
      * @return results - array list of results
      */
-    public ArrayList<Object []> executeSQLQuery(String query) {
-        ArrayList<Object []> resultList = new ArrayList<>();
+    public ArrayList<String []> executeSQLQuery(String query) {
+        ArrayList<String []> resultList = new ArrayList<>();
         Statement stmt = null;
         ResultSet rs = null;
         try{
@@ -54,9 +54,9 @@ public class SQLDatabaseConnection {
             ResultSetMetaData rsmd = rs.getMetaData();
             final int columnCount = rsmd.getColumnCount();
             while (rs.next()){
-                Object [] rowValues = new Object[columnCount];
+                String [] rowValues = new String[columnCount];
                 for (int i = 1; i <= columnCount; i++){
-                    rowValues[i-1] = rs.getObject(i);
+                    rowValues[i-1] = rs.getString(i);
                 }
                 resultList.add(rowValues);
             }
