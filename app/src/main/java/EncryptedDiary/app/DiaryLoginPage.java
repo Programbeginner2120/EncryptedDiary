@@ -133,7 +133,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * @return - Returns true for valid username, false for invalid username
      */
     private boolean validateUsername(String username){
-        String query = String.format("SELECT * FROM Users WHERE username = '%s'", username) ;
+        String query = String.format("SELECT * FROM Users WHERE username = '%s'", username);
         List<String []> results = this.sqlConn.executeSQLQuery(query);
         return results.size() > 0;
     }

@@ -331,11 +331,14 @@
 
 package EncryptedDiary.app;
 
+import javax.crypto.NoSuchPaddingException;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.security.NoSuchAlgorithmException;
+import java.sql.PreparedStatement;
 import java.sql.SQLOutput;
 import java.util.Arrays;
 import java.util.List;
@@ -356,12 +359,25 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
     private JTextArea textComponent; // Text component
 
+    private void instantiateDiaryCipher(){
+        try {
+            this.diaryCipher = new DiaryCipher();
+        }
+        catch (NoSuchPaddingException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
     public DiaryEditorPage(User currentUser) {
         super("Diary Editor Frame");
 
         this.currentUser = currentUser;
 
         this.sqlConn.openConnectionObject();
+
+        this.instantiateDiaryCipher(); // instantiate diary cipher object
 
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel"); // setting metal look and feel
@@ -537,14 +553,21 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         paginatedListFrame.setVisible(true);
     }
 
-    private void writeContentsToTextArea(){
-        List<String[]> fileContents = this.getUserFileContents();
-        this.textComponent.setText(Arrays.stream(fileContents.get(0)).collect(Collectors.joining()));
+//    private void writeContentsToTextArea(){
+//        List<String[]> fileContents = this.getUserFileContents();
+//        this.textComponent.setText(Arrays.stream(fileContents.get(0)).collect(Collectors.joining()));
+//    }
+
+    private void writeSecretKeyToDatabase(){
+
     }
 
-    void processFileOpen(){
+    public void processFileOpen(){
         if (!this.currentDocumentName.equals("Untitled")){
-            this.writeContentsToTextArea();
+            String fileContents = Arrays.stream(this.getUserFileContents().get(0)).collect(Collectors.joining());
+            byte [] contentBytes = fileContents.getBytes();
+            fileContents = this.diaryCipher.decryptString(contentBytes);
+            this.textComponent.setText(fileContents);
         }
     }
 
@@ -586,17 +609,18 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * @return
      */
     private void updateDocument(String documentName) throws Exception{ // Will try to update the existing document
-        if (this.diaryCipher == null)
-            this.diaryCipher = new DiaryCipher();
 
         //TODO: FIGURE OUT HOW TO PARAMETRIZE PREPARED STATEMENTS IN SQLDATABASECONNECTION CLASS
 
-//        String fileContents = this.textComponent.getText();
-//        byte [] encryptedContents = this.diaryCipher.encryptText(fileContents);
+        String fileContents = this.textComponent.getText();
+        byte [] encryptedContents = this.diaryCipher.encryptText(fileContents);
+        byte [] secretKeyBytes = this.diaryCipher.getMyKey().getEncoded();
 
-        String query = String.format("UPDATE userDocuments SET userDocumentContents = '%s' WHERE userID" +
-                " = %d AND userDocumentName = '%s'", this.textComponent.getText(), this.currentUser.getUserID(), documentName);
-        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
+        String query = String.format("UPDATE userDocuments SET userDocumentContents = ? WHERE userID" +
+                " = %d AND userDocumentName = '%s'", this.currentUser.getUserID(), documentName);
+
+        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query, encryptedContents, secretKeyBytes);
+
         if (executedSuccessfully){
             JOptionPane.showMessageDialog(this, "Success in" +
                     " updating this document.");
@@ -612,10 +636,16 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * @return
      */
     private void createDocument(String documentName) throws Exception{ // Will try to create a new document
-        String query = String.format("INSERT INTO userDocuments (userDocumentName, userDocumentContents," +
-                " encryptionMethod, decryptionMethod, userID) VALUES ('%s', '%s', '%s', '%s', %d)", documentName,
-                "", "Encrypt", "Decrypt", this.currentUser.getUserID());
-        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
+
+        String fileContents = this.textComponent.getText();
+        byte [] encryptedContents = this.diaryCipher.encryptText(fileContents);
+        byte [] secretKeyBytes = this.diaryCipher.getMyKey().getEncoded();
+
+        String query = String.format("INSERT INTO userDocuments VALUES ('%s', ?, ? %d)", documentName,
+                this.currentUser.getUserID());
+
+        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query, encryptedContents,
+                secretKeyBytes);
         if (executedSuccessfully){
             JOptionPane.showMessageDialog(this, "Success in" +
                     " creating this document.");

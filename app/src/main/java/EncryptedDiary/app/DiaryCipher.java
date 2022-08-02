@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class DiaryCipher {
 
-    private static  final String UNICODE_FORMAT = "UTF-8";  // specifying unicode
+    private static final String UNICODE_FORMAT = "UTF-8";  // specifying unicode
 
     private SecretKey myKey;
     private Cipher myCipher;
@@ -20,9 +20,20 @@ public class DiaryCipher {
         this.myCipher = Cipher.getInstance("AES");
     }
 
-    // get private instance variable myKey
-    public SecretKey getKey() {
+    public SecretKey getMyKey() {
         return myKey;
+    }
+
+    public void setMyKey(SecretKey myKey) {
+        this.myKey = myKey;
+    }
+
+    public Cipher getMyCipher() {
+        return myCipher;
+    }
+
+    public void setMyCipher(Cipher myCipher) {
+        this.myCipher = myCipher;
     }
 
     // Generating secret key as specified by string encryptionType

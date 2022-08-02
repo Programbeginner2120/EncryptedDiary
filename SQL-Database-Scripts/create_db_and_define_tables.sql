@@ -1,6 +1,6 @@
 /* Creating Encrypted Diary Database */
 
-/* CREATE DATABASE IF NOT EXISTS ENCRYPTED_DIARY_DB; */
+CREATE DATABASE IF NOT EXISTS ENCRYPTED_DIARY_DB;
 
 /* Changing to the ENCRYPTED_DIARY_DB database */
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS UserData (
     securityQuestion NVARCHAR(255) NULL,
     securityAnswer NVARCHAR(255) NULL,
     numDocuments INT NOT NULL,
-    userID INT, FOREIGN KEY (userID) REFERENCES Users(userID)
+    userID INT FOREIGN KEY (userID) REFERENCES Users(userID)
 );
 
 /* CREATING TABLE OF userDocuments */
@@ -30,8 +30,9 @@ CREATE TABLE IF NOT EXISTS UserDocuments(
     userDocumentsID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     userDocumentName VARCHAR (25) NOT NULL,
     userDocumentContents MEDIUMBLOB NOT NULL,
-    encryptionMethod NVARCHAR(30) NOT NULL,
-    decryptionMethod NVARCHAR(30) NOT NULL,
-    userID INT, FOREIGN KEY (userID) REFERENCES Users(userID)
+--    encryptionMethod NVARCHAR(30) NOT NULL,
+--    decryptionMethod NVARCHAR(30) NOT NULL,
+    secretKey TINYBLOB,
+    userID INT FOREIGN KEY (userID) REFERENCES Users(userID)
 );
 

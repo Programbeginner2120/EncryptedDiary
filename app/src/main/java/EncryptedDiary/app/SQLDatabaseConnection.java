@@ -142,18 +142,28 @@ public class SQLDatabaseConnection {
         }
     }
 
-    /**
-     * Executes a query on the database and returns the results in an array list
-     * @param query - SQL query to be executed in database
-     * @return results - array list of results
-     */
-    public List<String []> executeSQLQuery(String query) {
+    public PreparedStatement generatePreparedStatement(String query, Object ... parameters) throws SQLException {
+        PreparedStatement ps = this.conn.prepareStatement(query);
+
+        long numOfParameters = query.chars().filter(ch -> ch == '?').count();
+        for (int i = 0; i < numOfParameters; i++){
+            ps.setObject(i+1, parameters[i]);
+        }
+
+        return ps;
+    }
+
+//    public boolean tempSQlUpdate(PreparedStatement ps) throws SQLException {
+//        return ps.executeUpdate() == 1;
+//    }
+
+    public List<String []> executeSQLQuery(String query, Object ... parameters){
         List<String []> resultList = new ArrayList<>();
-        Statement stmt = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
         try{
-            stmt = conn.createStatement();
-            rs = stmt.executeQuery(query);
+            ps = this.generatePreparedStatement(query, parameters);
+            rs = ps.executeQuery(query);
             ResultSetMetaData rsmd = rs.getMetaData();
             final int columnCount = rsmd.getColumnCount();
             while (rs.next()){
@@ -173,17 +183,53 @@ public class SQLDatabaseConnection {
         }
         finally {
             if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
-            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+            if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
         }
         return null;
     }
 
-    public boolean executeSQLUpdate(String query){
-        Statement stmt = null;
+//    /**
+//     * Executes a query on the database and returns the results in an array list
+//     * @param query - SQL query to be executed in database
+//     * @return results - array list of results
+//     */
+//    public List<String []> executeSQLQuery(String query) {
+//        List<String []> resultList = new ArrayList<>();
+//        Statement stmt = null;
+//        ResultSet rs = null;
+//        try{
+//            stmt = conn.createStatement();
+//            rs = stmt.executeQuery(query);
+//            ResultSetMetaData rsmd = rs.getMetaData();
+//            final int columnCount = rsmd.getColumnCount();
+//            while (rs.next()){
+//                String [] rowValues = new String[columnCount];
+//                for (int i = 1; i <= columnCount; i++){
+//                    rowValues[i-1] = rs.getString(i);
+//                }
+//                resultList.add(rowValues);
+//            }
+//            return resultList;
+//        }
+//        catch (SQLException sqlEx){
+//            System.out.println(sqlEx.getMessage());
+//        }
+//        catch (Exception ex){
+//            System.out.println(ex.getMessage());
+//        }
+//        finally {
+//            if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
+//            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+//        }
+//        return null;
+//    }
+
+    public boolean executeSQLUpdate(String query, Object ... parameters){
+        PreparedStatement ps = null;
         int numberOfAffectedRows = 0;
         try{
-            stmt = conn.createStatement();
-            numberOfAffectedRows = stmt.executeUpdate(query); // not used right now but for documentation purposes assigned
+            ps = this.generatePreparedStatement(query, parameters);
+            numberOfAffectedRows = ps.executeUpdate(query); // not used right now but for documentation purposes assigned
             return true;
         }
         catch (SQLException sqlEx){
@@ -195,8 +241,29 @@ public class SQLDatabaseConnection {
             return false;
         }
         finally {
-            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+            if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
         }
     }
+
+//    public boolean executeSQLUpdate(String query){
+//        Statement stmt = null;
+//        int numberOfAffectedRows = 0;
+//        try{
+//            stmt = conn.createStatement();
+//            numberOfAffectedRows = stmt.executeUpdate(query); // not used right now but for documentation purposes assigned
+//            return true;
+//        }
+//        catch (SQLException sqlEx){
+//            System.out.println(sqlEx.getMessage());
+//            return false;
+//        }
+//        catch (Exception ex){
+//            System.out.println(ex.getMessage());
+//            return false;
+//        }
+//        finally {
+//            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
+//        }
+//    }
 
 }
