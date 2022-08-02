@@ -5,6 +5,7 @@ package EncryptedDiary.app;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,7 +15,8 @@ public class App {
 
     public static void main(String[] args){
 
-        DiaryLoginPage loginPage = new DiaryLoginPage();
+        DiaryLoginPage login = new DiaryLoginPage();
+        login.setVisible(true);
 
     }
 

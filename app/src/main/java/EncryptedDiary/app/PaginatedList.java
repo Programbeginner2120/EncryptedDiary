@@ -1,4 +1,4 @@
-package EncryptedDiary.app.CustomComponents;//package EncryptedDiary.app.CustomComponents;
+package EncryptedDiary.app;//package EncryptedDiary.app.CustomComponents;
 
 import EncryptedDiary.app.DiaryEditorPage;
 
@@ -15,7 +15,8 @@ import java.awt.event.ActionEvent;
 
 public class PaginatedList extends JPanel {
 
-    private DiaryEditorPage parentFrame;
+    private JFrame parentFrame;
+    private JFrame previousFrame;
     private String chosenDocumentName;
 
     private final int pageSize;
@@ -33,8 +34,9 @@ public class PaginatedList extends JPanel {
      * @param list the jlist
      * @param pageSize the number of rows visible in the jlist
      */
-    public PaginatedList(DiaryEditorPage parentFrame, JList list, int pageSize) {
+    public PaginatedList(JFrame parentFrame, DiaryEditorPage previousFrame, JList list, int pageSize) {
         super();
+        this.previousFrame = previousFrame;
         this.pageSize = pageSize;
         this.list = list;
         this.model = list.getModel();
@@ -90,17 +92,20 @@ public class PaginatedList extends JPanel {
         confirm = new JButton(new AbstractAction("Ok") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String documentName = (String) list.getModel().getElementAt(list.getSelectedIndex());
-                parentFrame.setCurrentDocumentName(documentName);
-                parentFrame.setCurrentDocumentIndex(list.getSelectedIndex());
-                parentFrame.disposeListFrame();
+                int indexOfDocument = list.getSelectedIndex();
+                if (indexOfDocument >= 0){
+                    String documentName = (String) list.getModel().getElementAt(list.getSelectedIndex());
+                    ((DiaryEditorPage)previousFrame).setCurrentDocumentName(documentName);
+                    ((DiaryEditorPage)previousFrame).setCurrentDocumentIndex(list.getSelectedIndex());
+                    ((DiaryEditorPage)previousFrame).disposeListFrame(parentFrame);
+                }
             }
         });
 
         cancel = new JButton(new AbstractAction("Cancel") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parentFrame.disposeListFrame();
+                ((DiaryEditorPage)previousFrame).disposeListFrame(parentFrame);
             }
         });
 
@@ -112,10 +117,6 @@ public class PaginatedList extends JPanel {
         bar.add(confirm);
         bar.add(cancel);
         return bar;
-    }
-
-    private void disposePage(){
-        this.getParent().getParent().setVisible(false);
     }
 
     private void updatePage() {
@@ -145,7 +146,7 @@ public class PaginatedList extends JPanel {
         last.setEnabled(canGoFwd);
     }
 }
-
-//TODO: CONTINUE TO DEVELOP FUNCTIONALITY OF THIS PAGE WITH DIARYEDITORPAGE
-//TODO: NEED TO CLEAN THIS PAGE'S FUNCTIONALITY UP AND MAKE IT MORE SUSTAINABLE
-//TODO: MAKE THIS PAGE'S FUNCTIONALITY MORE GENERIC / REUSABLE
+//
+////TODO: CONTINUE TO DEVELOP FUNCTIONALITY OF THIS PAGE WITH DIARYEDITORPAGE
+////TODO: NEED TO CLEAN THIS PAGE'S FUNCTIONALITY UP AND MAKE IT MORE SUSTAINABLE
+////TODO: MAKE THIS PAGE'S FUNCTIONALITY MORE GENERIC / REUSABLE

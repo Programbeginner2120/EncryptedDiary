@@ -5,7 +5,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
 
@@ -47,19 +48,22 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     /**
      * Private method used to open needed resources for the running of the DiaryLoginPage
      */
-    private void openNeededResources(){ this.sqlConn.openConnection(); }
+    private void openNeededResources(){ this.sqlConn.openConnectionObject(); }
 
     /**
      * Private method used to close all resources open after this page is disposed
      */
-    public void freeOpenResources() { this.sqlConn.closeConnection(); }
+    public void freeOpenResources() {
+        this.sqlConn.openConnectionObject();
+        this.sqlConn = null;
+    }
 
     /**
      * Private method used to construct the DiaryLoginPage login page
      */
     private void constructLoginPage(){
         this.setTitle("User Login");
-        this.setVisible(true); // able to actually see the login page frame
+        //this.setVisible(true); // able to actually see the login page frame
         this.setBounds(10,10,370,600); // setting x and y coordinates as well as width and height
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.setResizable(false); // determines whether user can reshape frame
@@ -130,7 +134,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      */
     private boolean validateUsername(String username){
         String query = String.format("SELECT * FROM Users WHERE username = '%s'", username) ;
-        ArrayList<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<String []> results = this.sqlConn.executeSQLQuery(query);
         return results.size() > 0;
     }
 
@@ -143,7 +147,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private boolean validatePassword(String password){
         String query = String.format("SELECT * FROM Users WHERE passHash = '%s'",
                 Integer.toString(password.hashCode()));
-        ArrayList<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<String []> results = this.sqlConn.executeSQLQuery(query);
         return results.size() > 0;
     }
 
@@ -153,11 +157,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * @param password - Password inputted by user
      * @return userInfo - ArrayList of object arrays that contain results from SQL query
      */
-    private ArrayList<String []> onLoginButtonPress(String username, String password) {
+    private List<String []> onLoginButtonPress(String username, String password) {
         boolean validUsername = validateUsername(username);
         boolean validPassHash = validatePassword(password);
         if (validUsername && validPassHash) {
-            ArrayList<String []> userInfo = this.sqlConn.executeSQLQuery(String.format(
+            List<String []> userInfo = this.sqlConn.executeSQLQuery(String.format(
                     "SELECT userID, username FROM Users WHERE username = '%s'", username));
             return userInfo;
         }
@@ -196,11 +200,12 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             String userText = userTextField.getText();
             String passwordText = String.valueOf(passwordField.getPassword());
 
-            ArrayList<String []> userInfo = this.onLoginButtonPress(userText, passwordText);
+            List<String []> userInfo = this.onLoginButtonPress(userText, passwordText);
             if (userInfo != null) {
                 JOptionPane.showMessageDialog(this, "Login Successful");
                 this.deconstructLoginPage();
-                moveToDiaryEditorPage(new User(Integer.parseInt(userInfo.get(0)[0]), userInfo.get(0)[1]));
+                moveToNewDiaryEditorPage(new User(Integer.parseInt(userInfo.get(0)[0]), userInfo.get(0)[1]));
+//                moveToNewPage(new User(Integer.parseInt(userInfo.get(0)[0]), userInfo.get(0)[1]));
             }
             else if (userInfo == null){
                 JOptionPane.showMessageDialog(this, "Invalid Username or Password");
@@ -215,11 +220,14 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             onShowPasswordButtonPress();
     }
 
+    private void moveToNewPage(Object o, User user) {
+    }
+
     /**
      * Private method used to move from the DiaryLoginPage to the DiaryEditorPage. Requires a validated User
      * @param user - An instance of the User class which contains logged-in user's information
      */
-    private static void moveToDiaryEditorPage(User user){
+    private static <T> void moveToNewDiaryEditorPage(User user){
         DiaryEditorPage editorPage = new DiaryEditorPage(user);
     }
 }

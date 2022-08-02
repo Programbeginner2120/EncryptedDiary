@@ -7,7 +7,7 @@
 //import java.util.Arrays;
 //import java.util.List;
 //
-//import EncryptedDiary.app.CustomComponents.PaginatedList;
+//import EncryptedDiary.app.PaginatedList;
 //
 //public class DiaryEditorPage extends JFrame implements ActionListener{
 //
@@ -200,7 +200,7 @@
 //
 //        String query = String.format("SELECT userDocumentName FROM userDocuments where userID = %d AND " +
 //                "userDocumentName = '%s'", this.currentUser.getUserID(), this.currentDocumentName);
-//        ArrayList<String []> results = this.sqlConn.executeSQLQuery(query);
+//        List<String []> results = this.sqlConn.executeSQLQuery(query);
 //        try {
 //            if (results.size() > 0){
 //                updateDocument(this.currentDocumentName);
@@ -332,16 +332,97 @@
 package EncryptedDiary.app;
 
 import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.plaf.metal.OceanTheme;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import EncryptedDiary.app.CustomComponents.PaginatedList;
+import java.util.List;
+
+//import EncryptedDiary.app.PaginatedList;
 
 public class DiaryEditorPage extends JFrame implements ActionListener{
 
     private User currentUser;
-    private SQLDatabaseConnection sqlConn;
+    private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
+
+    private String currentDocumentName = "Untitled";
+    private int currentDocumentIndex = -1;
 
     private JTextArea textComponent; // Text component
+
+    public DiaryEditorPage(User currentUser) {
+        super("Diary Editor Frame");
+
+        this.currentUser = currentUser;
+
+        this.sqlConn.openConnectionObject();
+
+        try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel"); // setting metal look and feel
+
+            MetalLookAndFeel.setCurrentTheme(new OceanTheme()); // setting theme to ocean
+        }
+        catch (Exception ignored){} // Just failing silently
+
+        this.textComponent = new JTextArea(); // Text component
+
+        JMenuBar mb = new JMenuBar(); // Creating a menu bar
+
+        JMenu m1 = new JMenu("File"); // Create a menu for menu
+
+        JMenuItem menuItem1 = new JMenuItem("New"); // Creating menu items for text editor
+        JMenuItem menuItem2 = new JMenuItem("Open");
+        JMenuItem menuItem3 = new JMenuItem("Save");
+        JMenuItem menuItem4 = new JMenuItem("Print");
+
+        menuItem1.addActionListener(this); // Adding action listeners for menu items
+        menuItem2.addActionListener(this);
+        menuItem3.addActionListener(this);
+        menuItem4.addActionListener(this);
+
+        m1.add(menuItem1); // Appending menu items to end of given menu m1
+        m1.add(menuItem2);
+        m1.add(menuItem3);
+        m1.add(menuItem4);
+
+        JMenu m2 = new JMenu("Edit");
+
+        JMenuItem menuItem5 = new JMenuItem("cut"); // Create menu items
+        JMenuItem menuItem6 = new JMenuItem("copy");
+        JMenuItem menuItem7 = new JMenuItem("paste");
+
+        menuItem5.addActionListener(this); // Add action listener
+        menuItem6.addActionListener(this);
+        menuItem7.addActionListener(this);
+
+        m2.add(menuItem5);
+        m2.add(menuItem6);
+        m2.add(menuItem7);
+
+        JMenuItem mc = new JMenuItem("close");
+
+        mc.addActionListener(this);
+
+        mb.add(m1);
+        mb.add(m2);
+        mb.add(mc);
+
+        this.setJMenuBar(mb);
+        this.add(this.textComponent);
+        this.setSize(500, 500);
+
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        this.setVisible(true);
+    }
+
+    public void setCurrentDocumentName(String currentDocumentName){
+        this.currentDocumentName = currentDocumentName;
+    }
+
+    public void setCurrentDocumentIndex(int currentDocumentIndex){
+        this.currentDocumentIndex = currentDocumentIndex;
+    }
 
     /**
      * Abstract method defined by the ActionListener interface that defines responses to different buttons in the
@@ -399,4 +480,160 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         this.textComponent.paste();
     }
 
+    /**
+     *
+     */
+    public void onSave(){ // TODO: Keep writing logic for saving BLOB file to database
+        if (this.currentDocumentName.equals("Untitled"))
+            this.currentDocumentName = JOptionPane.showInputDialog(this, "Enter name of file");
+
+        String query = String.format("SELECT userDocumentName FROM userDocuments where userID = %d AND " +
+                "userDocumentName = '%s'", this.currentUser.getUserID(), this.currentDocumentName);
+        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        try {
+            if (results.size() > 0){
+                updateDocument(this.currentDocumentName);
+            }
+            else{
+                createDocument(this.currentDocumentName);
+            }
+        }
+        catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "An error occurred while trying to conduct" +
+                    " this operation.");
+        }
+    }
+
+    /**
+     * Wrapper method used to print the text in the textComponent of the JTextArea
+     */
+    public void onPrint(){
+        try {
+            // print the file
+            this.textComponent.print();
+        }
+        catch (Exception evt) {
+            JOptionPane.showMessageDialog(this, evt.getMessage());
+        }
+    }
+
+    void disposeListFrame(JFrame paginatedListFrame){
+        paginatedListFrame.dispose();
+    }
+
+    private void instantiatePaginatedList(String [] fileNames){
+        JFrame paginatedListFrame = new JFrame("File Selection Frame");
+        JPanel paginatedList = new PaginatedList(paginatedListFrame, this, new JList(fileNames),
+                10);
+        paginatedListFrame.setSize(400,400);
+        paginatedListFrame.add(paginatedList);
+        paginatedListFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        paginatedListFrame.setVisible(true);
+    }
+
+    /**
+     * Method used display the names of files that the user has created
+     */
+    public void onOpen(){
+        List<String []> queryResults = this.getUserFileNames();
+
+        String [] fileNames = new String[queryResults.size()];
+        for (int i = 0; i < queryResults.size(); i++){
+            fileNames[i] = queryResults.get(i)[0];
+        }
+
+        this.instantiatePaginatedList(fileNames);
+
+        // TODO: IMPLEMENT SOME WAY TO TRANSFER FILE CONTENTS
+    }
+
+    /**
+     * Wrapper method used to create a new document
+     */
+    public void onNew(){
+        this.currentDocumentName = "Untitled";
+        this.textComponent.setText("");
+    }
+
+    /**
+     * Method used to dispose of DiaryEditorPage & calls closeOpenResources(), which closes open resources
+     */
+    public void onClose(){
+        freeOpenResources();
+        this.dispose();
+    }
+
+    /**
+     *
+     * @return
+     */
+    private void updateDocument(String documentName) throws Exception{ // Will try to update the existing document
+        String query = String.format("UPDATE userDocuments SET userDocumentContents = '%s' WHERE userID" +
+                " = %d AND userDocumentName = '%s'", this.textComponent.getText(), this.currentUser.getUserID(), documentName);
+        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
+        if (executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "Success in" +
+                    " updating this document.");
+        }
+        else {
+            JOptionPane.showMessageDialog(this, "There was a problem in" +
+                    " updating this document.");
+        }
+    }
+
+    /**
+     *
+     * @return
+     */
+    private void createDocument(String documentName) throws Exception{ // Will try to create a new document
+        String query = String.format("INSERT INTO userDocuments (userDocumentName, userDocumentContents," +
+                " encryptionMethod, decryptionMethod, userID) VALUES ('%s', '%s', '%s', '%s', %d)", documentName,
+                "", "Encrypt", "Decrypt", this.currentUser.getUserID());
+        boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
+        if (executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "Success in" +
+                    " creating this document.");
+        }
+        if (!executedSuccessfully){
+            JOptionPane.showMessageDialog(this, "There was a problem in" +
+                    " creating this document.");
+        }
+    }
+
+    /**
+     * Private method used to retrieve the list of results when the query in executed in SQL
+     * @return results - the results of the SQL query executed
+     */
+    private List<String []> getUserFileNames() {
+        String query = String.format("SELECT userDocumentName, userDocumentContents FROM userDocuments " +
+                "WHERE userDocuments.userID = %d", this.currentUser.getUserID());
+        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        return results;
+    }
+
+    /**
+     * Private method used to retrieve the list of results when the query in executed in SQL
+     * @return results - the results of the SQL query executed
+     */
+    private List<String []> getUserFileContents() {
+        String query = String.format("SELECT userDocumentContents FROM userDocuments WHERE userDocuments.userID = %d",
+                this.currentUser.getUserID());
+        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        return results;
+    }
+
+    public void freeOpenResources() {
+        this.sqlConn.openConnectionObject();
+        this.sqlConn = null;
+    }
+
+    private void deconstructLoginPage(){
+        this.freeOpenResources();
+        this.dispose();
+    }
 }
+
+//TODO: "overhaul in progress, need to develop bare bones functionality and test using JUNIT"
+
+//TODO: FIGURE OUT HOW TO CONDUCT OPEN OPERATION, SAVE OPERATION IN TERMS OF ENCRYPTION AND DECRYPTION,
+// ALSO THINK ABOUT HOW TO HANDLE EXCEPTIONS
