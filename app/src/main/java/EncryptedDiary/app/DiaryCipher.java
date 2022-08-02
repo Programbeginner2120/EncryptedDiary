@@ -2,8 +2,9 @@ package EncryptedDiary.app;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-
+import java.security.NoSuchAlgorithmException;
 
 
 public class DiaryCipher {
@@ -11,10 +12,12 @@ public class DiaryCipher {
     private static  final String UNICODE_FORMAT = "UTF-8";  // specifying unicode
 
     private SecretKey myKey;
+    private Cipher myCipher;
 
     // Basic constructor
-    public DiaryCipher(){
-        SecretKey myKey = this.generateSecretKey("AES");
+    public DiaryCipher() throws NoSuchPaddingException, NoSuchAlgorithmException{
+        this.myKey = this.generateSecretKey("AES");
+        this.myCipher = Cipher.getInstance("AES");
     }
 
     // get private instance variable myKey
@@ -35,12 +38,12 @@ public class DiaryCipher {
     }
 
     // Encrypting text based upon encrypting type
-    public byte [] encryptText(String dataToEncrypt, SecretKey myKey, Cipher cipher){
+    public byte [] encryptText(String dataToEncrypt){
 
         try {
             byte [] text = dataToEncrypt.getBytes(UNICODE_FORMAT);
-            cipher.init(Cipher.ENCRYPT_MODE, myKey);
-            byte [] encryptedText = cipher.doFinal(text);
+            this.myCipher.init(Cipher.ENCRYPT_MODE, myKey);
+            byte [] encryptedText = this.myCipher.doFinal(text);
             return encryptedText;
         }
 
@@ -52,10 +55,10 @@ public class DiaryCipher {
     }
 
     // Decrypting bytes based upon encrypting type
-    public String decryptString(byte [] dataToDecrypt, SecretKey myKey, Cipher cipher){
+    public String decryptString(byte [] dataToDecrypt){
         try{
-            cipher.init(Cipher.DECRYPT_MODE, myKey);
-            byte [] decryptedText = cipher.doFinal(dataToDecrypt);
+            this.myCipher.init(Cipher.DECRYPT_MODE, myKey);
+            byte [] decryptedText = this.myCipher.doFinal(dataToDecrypt);
             String result = new String(decryptedText);
             return result;
         }

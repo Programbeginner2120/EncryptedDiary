@@ -336,7 +336,11 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLOutput;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 //import EncryptedDiary.app.PaginatedList;
 
@@ -344,6 +348,8 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
     private User currentUser;
     private SQLDatabaseConnection sqlConn = new SQLDatabaseConnection();
+
+    private DiaryCipher diaryCipher;
 
     private String currentDocumentName = "Untitled";
     private int currentDocumentIndex = -1;
@@ -531,6 +537,17 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         paginatedListFrame.setVisible(true);
     }
 
+    private void writeContentsToTextArea(){
+        List<String[]> fileContents = this.getUserFileContents();
+        this.textComponent.setText(Arrays.stream(fileContents.get(0)).collect(Collectors.joining()));
+    }
+
+    void processFileOpen(){
+        if (!this.currentDocumentName.equals("Untitled")){
+            this.writeContentsToTextArea();
+        }
+    }
+
     /**
      * Method used display the names of files that the user has created
      */
@@ -543,6 +560,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         }
 
         this.instantiatePaginatedList(fileNames);
+
 
         // TODO: IMPLEMENT SOME WAY TO TRANSFER FILE CONTENTS
     }
@@ -568,6 +586,14 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * @return
      */
     private void updateDocument(String documentName) throws Exception{ // Will try to update the existing document
+        if (this.diaryCipher == null)
+            this.diaryCipher = new DiaryCipher();
+
+        //TODO: FIGURE OUT HOW TO PARAMETRIZE PREPARED STATEMENTS IN SQLDATABASECONNECTION CLASS
+
+//        String fileContents = this.textComponent.getText();
+//        byte [] encryptedContents = this.diaryCipher.encryptText(fileContents);
+
         String query = String.format("UPDATE userDocuments SET userDocumentContents = '%s' WHERE userID" +
                 " = %d AND userDocumentName = '%s'", this.textComponent.getText(), this.currentUser.getUserID(), documentName);
         boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query);
