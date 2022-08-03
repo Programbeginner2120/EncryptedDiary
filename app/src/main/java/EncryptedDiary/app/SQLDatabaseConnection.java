@@ -163,7 +163,7 @@ public class SQLDatabaseConnection {
         ResultSet rs = null;
         try{
             ps = this.generatePreparedStatement(query, parameters);
-            rs = ps.executeQuery(query);
+            rs = ps.executeQuery();
             ResultSetMetaData rsmd = rs.getMetaData();
             final int columnCount = rsmd.getColumnCount();
             while (rs.next()){
@@ -229,7 +229,7 @@ public class SQLDatabaseConnection {
         int numberOfAffectedRows = 0;
         try{
             ps = this.generatePreparedStatement(query, parameters);
-            numberOfAffectedRows = ps.executeUpdate(query); // not used right now but for documentation purposes assigned
+            numberOfAffectedRows = ps.executeUpdate(); // not used right now but for documentation purposes assigned
             return true;
         }
         catch (SQLException sqlEx){

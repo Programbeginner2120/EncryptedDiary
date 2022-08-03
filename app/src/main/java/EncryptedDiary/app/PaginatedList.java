@@ -98,7 +98,7 @@ public class PaginatedList extends JPanel {
                     ((DiaryEditorPage)previousFrame).setCurrentDocumentName(documentName);
                     ((DiaryEditorPage)previousFrame).setCurrentDocumentIndex(list.getSelectedIndex());
                     ((DiaryEditorPage)previousFrame).disposeListFrame(parentFrame);
-                    ((DiaryEditorPage)previousFrame).processFileOpen();
+                    ((DiaryEditorPage)previousFrame).processFileOpen(documentName);
                 }
             }
         });

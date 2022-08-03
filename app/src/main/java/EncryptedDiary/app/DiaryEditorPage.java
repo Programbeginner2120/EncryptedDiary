@@ -332,6 +332,8 @@
 package EncryptedDiary.app;
 
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -562,11 +564,26 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
     }
 
-    public void processFileOpen(){
+    //TODO: IT SEEMS THAT ENCRYPTED CONTENTS GET MODIFIED IN THE PROCESS OF GOING FROM JAVA TO SQL AND / OR SQL TO JAVA,
+    // NEED TO FIGURE OUT HOW TO HANDLE THIS ISSUE
+
+    public void processFileOpen(String chosenDocumentName){
         if (!this.currentDocumentName.equals("Untitled")){
-            String fileContents = Arrays.stream(this.getUserFileContents().get(0)).collect(Collectors.joining());
-            byte [] contentBytes = fileContents.getBytes();
-            fileContents = this.diaryCipher.decryptString(contentBytes);
+            String query = "SELECT userDocumentContents FROM userDocuments WHERE userId = ? AND userDocumentName = ?";
+            byte [] contentBytes = Arrays.stream(this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
+                    chosenDocumentName).get(0)).collect(Collectors.joining()).getBytes();
+
+            String [] arr = this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
+                    chosenDocumentName).get(0);
+
+            query = "SELECT secretKey FROM userDocuments WHERE userId = ? AND userDocumentName = ?";
+            byte [] secretKeyBytes = Arrays.stream(this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
+                    chosenDocumentName).get(0)).collect(Collectors.joining()).getBytes();
+
+            this.diaryCipher.setMyKey(new SecretKeySpec(secretKeyBytes, 0, secretKeyBytes.length,
+                    "AES"));
+
+            String fileContents = this.diaryCipher.decryptString(contentBytes);
             this.textComponent.setText(fileContents);
         }
     }
@@ -610,13 +627,11 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      */
     private void updateDocument(String documentName) throws Exception{ // Will try to update the existing document
 
-        //TODO: FIGURE OUT HOW TO PARAMETRIZE PREPARED STATEMENTS IN SQLDATABASECONNECTION CLASS
-
         String fileContents = this.textComponent.getText();
         byte [] encryptedContents = this.diaryCipher.encryptText(fileContents);
         byte [] secretKeyBytes = this.diaryCipher.getMyKey().getEncoded();
 
-        String query = String.format("UPDATE userDocuments SET userDocumentContents = ? WHERE userID" +
+        String query = String.format("UPDATE userDocuments SET userDocumentContents = ?, secretKey = ? WHERE userID" +
                 " = %d AND userDocumentName = '%s'", this.currentUser.getUserID(), documentName);
 
         boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query, encryptedContents, secretKeyBytes);
@@ -641,8 +656,8 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
         byte [] encryptedContents = this.diaryCipher.encryptText(fileContents);
         byte [] secretKeyBytes = this.diaryCipher.getMyKey().getEncoded();
 
-        String query = String.format("INSERT INTO userDocuments VALUES ('%s', ?, ? %d)", documentName,
-                this.currentUser.getUserID());
+        String query = String.format("INSERT INTO userDocuments (userDocumentName, userDocumentContents, secretKey," +
+                        " userID) VALUES ('%s', ?, ?, %d)", documentName, this.currentUser.getUserID());
 
         boolean executedSuccessfully = this.sqlConn.executeSQLUpdate(query, encryptedContents,
                 secretKeyBytes);
