@@ -153,12 +153,8 @@ public class SQLDatabaseConnection {
         return ps;
     }
 
-//    public boolean tempSQlUpdate(PreparedStatement ps) throws SQLException {
-//        return ps.executeUpdate() == 1;
-//    }
-
-    public List<String []> executeSQLQuery(String query, Object ... parameters){
-        List<String []> resultList = new ArrayList<>();
+    public List<Object []> executeSQLQuery(String query, Object ... parameters){
+        List<Object []> resultList = new ArrayList<>();
         PreparedStatement ps = null;
         ResultSet rs = null;
         try{
@@ -167,9 +163,9 @@ public class SQLDatabaseConnection {
             ResultSetMetaData rsmd = rs.getMetaData();
             final int columnCount = rsmd.getColumnCount();
             while (rs.next()){
-                String [] rowValues = new String[columnCount];
+                Object [] rowValues = new Object[columnCount];
                 for (int i = 1; i <= columnCount; i++){
-                    rowValues[i-1] = rs.getString(i);
+                    rowValues[i-1] = rs.getObject(i);
                 }
                 resultList.add(rowValues);
             }
@@ -187,42 +183,6 @@ public class SQLDatabaseConnection {
         }
         return null;
     }
-
-//    /**
-//     * Executes a query on the database and returns the results in an array list
-//     * @param query - SQL query to be executed in database
-//     * @return results - array list of results
-//     */
-//    public List<String []> executeSQLQuery(String query) {
-//        List<String []> resultList = new ArrayList<>();
-//        Statement stmt = null;
-//        ResultSet rs = null;
-//        try{
-//            stmt = conn.createStatement();
-//            rs = stmt.executeQuery(query);
-//            ResultSetMetaData rsmd = rs.getMetaData();
-//            final int columnCount = rsmd.getColumnCount();
-//            while (rs.next()){
-//                String [] rowValues = new String[columnCount];
-//                for (int i = 1; i <= columnCount; i++){
-//                    rowValues[i-1] = rs.getString(i);
-//                }
-//                resultList.add(rowValues);
-//            }
-//            return resultList;
-//        }
-//        catch (SQLException sqlEx){
-//            System.out.println(sqlEx.getMessage());
-//        }
-//        catch (Exception ex){
-//            System.out.println(ex.getMessage());
-//        }
-//        finally {
-//            if (rs != null) try { rs.close(); } catch (SQLException ignore) {}
-//            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
-//        }
-//        return null;
-//    }
 
     public boolean executeSQLUpdate(String query, Object ... parameters){
         PreparedStatement ps = null;
@@ -244,26 +204,5 @@ public class SQLDatabaseConnection {
             if (ps != null) try { ps.close(); } catch (SQLException ignore) {}
         }
     }
-
-//    public boolean executeSQLUpdate(String query){
-//        Statement stmt = null;
-//        int numberOfAffectedRows = 0;
-//        try{
-//            stmt = conn.createStatement();
-//            numberOfAffectedRows = stmt.executeUpdate(query); // not used right now but for documentation purposes assigned
-//            return true;
-//        }
-//        catch (SQLException sqlEx){
-//            System.out.println(sqlEx.getMessage());
-//            return false;
-//        }
-//        catch (Exception ex){
-//            System.out.println(ex.getMessage());
-//            return false;
-//        }
-//        finally {
-//            if (stmt != null) try { stmt.close(); } catch (SQLException ignore) {}
-//        }
-//    }
 
 }

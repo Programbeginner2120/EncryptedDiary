@@ -134,7 +134,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      */
     private boolean validateUsername(String username){
         String query = String.format("SELECT * FROM Users WHERE username = '%s'", username);
-        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<Object []> results = this.sqlConn.executeSQLQuery(query);
         return results.size() > 0;
     }
 
@@ -147,7 +147,7 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
     private boolean validatePassword(String password){
         String query = String.format("SELECT * FROM Users WHERE passHash = '%s'",
                 Integer.toString(password.hashCode()));
-        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<Object []> results = this.sqlConn.executeSQLQuery(query);
         return results.size() > 0;
     }
 
@@ -157,11 +157,11 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * @param password - Password inputted by user
      * @return userInfo - ArrayList of object arrays that contain results from SQL query
      */
-    private List<String []> onLoginButtonPress(String username, String password) {
+    private List<Object []> onLoginButtonPress(String username, String password) {
         boolean validUsername = validateUsername(username);
         boolean validPassHash = validatePassword(password);
         if (validUsername && validPassHash) {
-            List<String []> userInfo = this.sqlConn.executeSQLQuery(String.format(
+            List<Object []> userInfo = this.sqlConn.executeSQLQuery(String.format(
                     "SELECT userID, username FROM Users WHERE username = '%s'", username));
             return userInfo;
         }
@@ -200,11 +200,12 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
             String userText = userTextField.getText();
             String passwordText = String.valueOf(passwordField.getPassword());
 
-            List<String []> userInfo = this.onLoginButtonPress(userText, passwordText);
+            List<Object []> userInfo = this.onLoginButtonPress(userText, passwordText);
             if (userInfo != null) {
                 JOptionPane.showMessageDialog(this, "Login Successful");
                 this.deconstructLoginPage();
-                moveToNewDiaryEditorPage(new User(Integer.parseInt(userInfo.get(0)[0]), userInfo.get(0)[1]));
+                moveToNewDiaryEditorPage(new User((Integer) userInfo.get(0)[0],
+                        (String) userInfo.get(0)[1]));
 //                moveToNewPage(new User(Integer.parseInt(userInfo.get(0)[0]), userInfo.get(0)[1]));
             }
             else if (userInfo == null){

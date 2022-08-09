@@ -331,6 +331,8 @@
 
 package EncryptedDiary.app;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -513,7 +515,7 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
 
         String query = String.format("SELECT userDocumentName FROM userDocuments where userID = %d AND " +
                 "userDocumentName = '%s'", this.currentUser.getUserID(), this.currentDocumentName);
-        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<Object []> results = this.sqlConn.executeSQLQuery(query);
         try {
             if (results.size() > 0){
                 updateDocument(this.currentDocumentName);
@@ -570,15 +572,14 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
     public void processFileOpen(String chosenDocumentName){
         if (!this.currentDocumentName.equals("Untitled")){
             String query = "SELECT userDocumentContents FROM userDocuments WHERE userId = ? AND userDocumentName = ?";
-            byte [] contentBytes = Arrays.stream(this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
-                    chosenDocumentName).get(0)).collect(Collectors.joining()).getBytes();
+            byte [] contentBytes = (byte []) this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
+                    chosenDocumentName).get(0)[0];
 
-            String [] arr = this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
-                    chosenDocumentName).get(0);
 
             query = "SELECT secretKey FROM userDocuments WHERE userId = ? AND userDocumentName = ?";
-            byte [] secretKeyBytes = Arrays.stream(this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
-                    chosenDocumentName).get(0)).collect(Collectors.joining()).getBytes();
+            byte [] secretKeyBytes = (byte []) this.sqlConn.executeSQLQuery(query, this.currentUser.getUserID(),
+                    chosenDocumentName).get(0)[0];
+
 
             this.diaryCipher.setMyKey(new SecretKeySpec(secretKeyBytes, 0, secretKeyBytes.length,
                     "AES"));
@@ -592,11 +593,11 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Method used display the names of files that the user has created
      */
     public void onOpen(){
-        List<String []> queryResults = this.getUserFileNames();
+        List<Object []> queryResults = this.getUserFileNames();
 
         String [] fileNames = new String[queryResults.size()];
         for (int i = 0; i < queryResults.size(); i++){
-            fileNames[i] = queryResults.get(i)[0];
+            fileNames[i] = (String) queryResults.get(i)[0];
         }
 
         this.instantiatePaginatedList(fileNames);
@@ -675,10 +676,10 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Private method used to retrieve the list of results when the query in executed in SQL
      * @return results - the results of the SQL query executed
      */
-    private List<String []> getUserFileNames() {
+    private List<Object []> getUserFileNames() {
         String query = String.format("SELECT userDocumentName, userDocumentContents FROM userDocuments " +
                 "WHERE userDocuments.userID = %d", this.currentUser.getUserID());
-        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<Object []> results = this.sqlConn.executeSQLQuery(query);
         return results;
     }
 
@@ -686,10 +687,10 @@ public class DiaryEditorPage extends JFrame implements ActionListener{
      * Private method used to retrieve the list of results when the query in executed in SQL
      * @return results - the results of the SQL query executed
      */
-    private List<String []> getUserFileContents() {
+    private List<Object []> getUserFileContents() {
         String query = String.format("SELECT userDocumentContents FROM userDocuments WHERE userDocuments.userID = %d",
                 this.currentUser.getUserID());
-        List<String []> results = this.sqlConn.executeSQLQuery(query);
+        List<Object []> results = this.sqlConn.executeSQLQuery(query);
         return results;
     }
 
