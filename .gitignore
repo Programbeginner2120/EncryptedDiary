@@ -21,4 +21,4 @@ build
 
 # My stuff to ignore
 
-Credentials.json
+app/src/main/java/EncryptedDiary/app/usercredentials/Credentials.json
