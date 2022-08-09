@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.function.Supplier;
 
 public class DiaryLoginPage extends JFrame implements ActionListener{
 
@@ -228,11 +227,10 @@ public class DiaryLoginPage extends JFrame implements ActionListener{
      * Private method used to move from the DiaryLoginPage to the DiaryEditorPage. Requires a validated User
      * @param user - An instance of the User class which contains logged-in user's information
      */
-    private static <T> void moveToNewDiaryEditorPage(User user){
+    private static void moveToNewDiaryEditorPage(User user){
         DiaryEditorPage editorPage = new DiaryEditorPage(user);
     }
 }
 
-//TODO: IMPLEMENT JUNIT TESTING BEFORE PROCEEDING WITH MORE CODE SO THAT I KNOW THE FOUNDATIONAL FUNCTIONALITIES
-// WORK BEFORE MOVING ON
+//TODO: CLEAN UP CONTENTS AND MAKE CODE MORE MODULAR
 

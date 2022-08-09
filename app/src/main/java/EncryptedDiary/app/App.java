@@ -20,29 +20,7 @@ public class App {
 
     }
 
-//    public static void main(String[] args) {
-//
-////        DiaryEditorPage page = new DiaryEditorPage();
-//
-//        try {
-//            Cipher cipher = Cipher.getInstance("AES");
-//
-//            DiaryCipher myDiaryCipher = new DiaryCipher();
-//            SecretKey key = myDiaryCipher.getKey();
-//
-//            byte[] encryptedBytes = myDiaryCipher.encryptText("HELLO WORLD", key, cipher);
-//
-//            String encryptedString = new String(encryptedBytes);
-//
-//            System.out.println(encryptedString);
-//
-//            String decryptedString = myDiaryCipher.decryptString(encryptedBytes, key, cipher);
-//
-//            System.out.println(decryptedString);
-//
-//        } catch (Exception ex) {
-//            System.out.println(ex.getMessage());
-//        }
-//    }
-
 }
+
+//TODO: CONSTRUCT APPLICATION CLASS SO THAT IT HANDLES THE PROCESS OF SWITCHING FROM PAGE TO PAGE AND DOESN'T
+// OUTSOURCE IT TO OTHER CLASSES

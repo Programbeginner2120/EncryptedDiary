@@ -1,6 +1,4 @@
-package EncryptedDiary.app;//package EncryptedDiary.app.CustomComponents;
-
-import EncryptedDiary.app.DiaryEditorPage;
+package EncryptedDiary.app;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +8,8 @@ import java.awt.event.ActionEvent;
  * A paginated list. Only displays a specific number of rows
  * and allows you to page backwards and forwards through the list
  * with the help of a toolbar.
- * ALL CREDIT GOES TO STACKOVERFLOW ANSWER AT https://stackoverflow.com/questions/4613840/can-i-paginate-a-jlist
+ * CREDIT GOES TO STACKOVERFLOW ANSWER AT https://stackoverflow.com/questions/4613840/can-i-paginate-a-jlist for the initial
+ * template
  */
 
 public class PaginatedList extends JPanel {
@@ -147,7 +146,6 @@ public class PaginatedList extends JPanel {
         last.setEnabled(canGoFwd);
     }
 }
-//
-////TODO: CONTINUE TO DEVELOP FUNCTIONALITY OF THIS PAGE WITH DIARYEDITORPAGE
+
 ////TODO: NEED TO CLEAN THIS PAGE'S FUNCTIONALITY UP AND MAKE IT MORE SUSTAINABLE
 ////TODO: MAKE THIS PAGE'S FUNCTIONALITY MORE GENERIC / REUSABLE
