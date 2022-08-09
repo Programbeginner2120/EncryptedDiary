@@ -18,3 +18,7 @@ build
 !app/src
 
 /.DS_Store
+
+# My stuff to ignore
+
+app/src/main/java/EncryptedDiary/app/usercredentials/Credentials.json

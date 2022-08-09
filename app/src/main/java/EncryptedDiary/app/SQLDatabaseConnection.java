@@ -1,14 +1,48 @@
 package EncryptedDiary.app;
 
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SQLDatabaseConnection {
 
-    private static final String connectionUrl = "jdbc:mysql://(localhost=33060,user=Matthewkilleen99," +
-        "password=Mk16914004006425529)/ENCRYPTED_DIARY_DB";
+//    private static final String connectionUrl = "jdbc:mysql://(localhost=33060,user=Matthewkilleen99," +
+//        "password=Mk16914004006425529)/ENCRYPTED_DIARY_DB";
+    private static String connectionUrl;
     private Connection conn = null;
+
+    static {
+        //System.out.println(System.getProperty("user.dir"));
+        Gson gson = null;
+        Reader reader = null;
+        try{
+            gson = new Gson();
+            reader = Files.newBufferedReader(Paths.get("app/src/main/java/EncryptedDiary/app/usercredentials/Credentials.json"));
+            Map<?, ?> map = gson.fromJson(reader, Map.class);
+            SQLDatabaseConnection.connectionUrl = (String) map.get("connectionUrl");
+        }
+        catch (Exception ex){
+            ex.printStackTrace();
+        }
+        finally{
+            if (reader != null){
+                try{
+                    reader.close();
+                }
+                catch (Exception ex){
+                    System.out.println("Could not close resources");
+                }
+
+            }
+        }
+    }
 
     public SQLDatabaseConnection(){
         this.openConnectionObject();
