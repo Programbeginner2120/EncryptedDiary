@@ -13,13 +13,10 @@ import java.util.Map;
 
 public class SQLDatabaseConnection {
 
-//    private static final String connectionUrl = "jdbc:mysql://(localhost=33060,user=Matthewkilleen99," +
-//        "password=Mk16914004006425529)/ENCRYPTED_DIARY_DB";
     private static String connectionUrl;
     private Connection conn = null;
 
     static {
-        //System.out.println(System.getProperty("user.dir"));
         Gson gson = null;
         Reader reader = null;
         try{
